@@ -8,63 +8,75 @@ namespace Michiru.Neural
 {
     class NeuralLayer
     {
-		public int Size { get; }
-		protected Neuron[] _neurons;
+		public int Size { get; protected set; }
+		public double[,] Weights { get; set; }
+		public NeuralLayer PrevLayer { get; protected set; }
+		public static Random RAND = new Random();
 
 		protected NeuralLayer()
 		{
 		}
 
-		public NeuralLayer(int neuronCount, ActivationFunction activator, NeuralLayer prevLayer)
+		public NeuralLayer(int neuronCount, NeuralLayer prevLayer)
 		{
 			Size = neuronCount;
-			_neurons = new Neuron[neuronCount];
-			for (int i = 0; i < neuronCount; i++)
-				_neurons[i] = new Neuron(Synapse.FromNeurons(prevLayer._neurons), activator);
-		}
-
-		public virtual NeuralLayer BackPropagate(double[] deltaOutputSum)
-		{
-			for (int i = 0; i < deltaOutputSum.Length; i++)
+			Weights = new double[prevLayer.Size, neuronCount];
+			for (int i = 0; i < prevLayer.Size; i++)
 			{
-				_neurons[i].BackPropagate(deltaOutputSum[i]);
+				for (int j = 0; j < neuronCount; j++)
+				{
+					Weights[i, j] = RAND.NextDouble();
+				}
 			}
-			return this;
+			PrevLayer = prevLayer;
 		}
 
-		public NeuralValues GetOutput() => new NeuralValues((from Neuron n in _neurons select n.GetOutput()));
-
+		public virtual double[,] GetOutput(NeuralResults r) => MatrixMath.Multiply((PrevLayer.GetType() == typeof(InputLayer)) ? PrevLayer.GetOutput(r) : r.AddHiddenSum(PrevLayer.GetOutput(r)), Weights);
 	}
 
 	class InputLayer : NeuralLayer
 	{
 
-		public InputLayer(int inputCount)
+		private double[,] _inputs;
+
+		public InputLayer(int inputCount, int inputWidh)
 		{
-			_neurons = new InputNeuron[inputCount];
-			for (int i = 0; i < inputCount; i++)
-			{
-				_neurons[i] = new InputNeuron(0);
-			}
+			Size = inputWidh;
+			_inputs = new double[inputCount, inputWidh];
 		}
 
 		public InputLayer SetInputs(NeuralValues inputs)
 		{
-			for (int i = 0; i < _neurons.Length; i++)
+			for (int i = 0; i < _inputs.GetLength(0); i++)
 			{
-				_neurons[i] = new InputNeuron(inputs[i]);
+				for (int j = 0; j < _inputs.GetLength(1); j++)
+				{
+					_inputs[i, j] = inputs[i, j];
+				}
 			}
 			return this;
 		}
+
+		public override double[,] GetOutput(NeuralResults r)
+		{
+			return _inputs;
+		}
+
+
 	}
 
 	class OutputLayer : NeuralLayer
 	{
-		public OutputLayer(int outputs, ActivationFunction activator, NeuralLayer prevLayer) : base(outputs, activator, prevLayer)
+		public OutputLayer(int outputs, NeuralLayer prevLayer) : base(outputs, prevLayer)
 		{
 
 		}
 
-		public Neuron[] GetNeurons() => _neurons;
+		public virtual NeuralResults GetResult(int hiddenLayers, ActivationFunction activator)
+		{
+			NeuralResults r = new NeuralResults(hiddenLayers, activator);
+			r.SetOutputSum(GetOutput(r));
+			return r;
+		}
 	}
 }

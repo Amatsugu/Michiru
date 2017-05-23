@@ -11,51 +11,64 @@ namespace Michiru.Neural
 		private InputLayer _inputLayer;
 		private OutputLayer _outputLayer;
 		private NeuralLayer[] _HiddenLayers;
+		private double _lerningRate;
+		private ActivationFunction _act;
 
-		public NeuralNet(int inputs, int outputs, int[] hiddenLayers, ActivationFunction activator)
+		public NeuralNet(int[] inputs, int outputs, int[] hiddenLayers, ActivationFunction activator, double lerningRate)
 		{
-			_inputLayer = new InputLayer(inputs);
+			_inputLayer = new InputLayer(inputs[0], inputs[1]);
+			_act = activator;
+			_lerningRate = lerningRate;
 			_HiddenLayers = new NeuralLayer[hiddenLayers.Length];
 			for (int i = 0; i < hiddenLayers.Length; i++)
 			{
-				_HiddenLayers[i] = new NeuralLayer(hiddenLayers[i], activator, (i - 1 < 0) ? _inputLayer : _HiddenLayers[i - 1]);
+				_HiddenLayers[i] = new NeuralLayer(hiddenLayers[i], (i - 1 < 0) ? _inputLayer : _HiddenLayers[i - 1]);
 			}
-			_outputLayer = new OutputLayer(outputs, activator, _HiddenLayers.Last());
+			_outputLayer = new OutputLayer(outputs, _HiddenLayers.Last());
 		}
 
 		public NeuralValues GetOutput(NeuralValues inputs)
 		{
-			_inputLayer.SetInputs(inputs);
-			return _outputLayer.GetOutput();
+			return GetResult(inputs).OutputSum;
 		}
 
-		public NeuralNet Train(TrainingData data, ActivationFunction dActivator, int iterations = 1000_000)
+		public NeuralResults GetResult(NeuralValues inputs)
 		{
-			for (int it = 0; it < iterations; it++)
-			{
+			_inputLayer.SetInputs(inputs);
+			return _outputLayer.GetResult(_HiddenLayers.Length, _act);
+		}
 
-				for (int i = 0; i < data.Count; i++)
+		public NeuralNet Train(TrainingData data, ActivationFunction dActivator, int iterations = 10_000_000)
+		{
+			for (int ir = 0; ir < iterations; ir++)
+			{
+				NeuralResults results = GetResult(data.Inputs);
+				NeuralValues errorOutputLayer = data.Outputs - results.OutputResult;
+				double deltaOutputLayer = results.OutputSum.Activate(dActivator) / errorOutputLayer;
+				for (int i = 0; i < results.HiddenSums.Length; i++)
 				{
-					NeuralValues outputSum = GetOutput(data.Inputs[i]);
-					double[] deltaOutputSum = new double[outputSum.Count];
-					for (int j = 0; j < outputSum.Count; j++)
-					{
-						deltaOutputSum[j] = dActivator(outputSum[j]) * (data.Outputs[i][j] - outputSum[j]);
-					}
-					_outputLayer.BackPropagate(deltaOutputSum);
-					double[] hiddenSum = _HiddenLayers.Last().GetOutput().Values.Select(v => dActivator(v)).ToArray(); //Scale this up
-					double[] hiddenToOuterW = _outputLayer.GetNeurons().First().Synapses.Select(s => s.OldWeight).ToArray();
-					double[] deltaHW = hiddenSum.Zip(hiddenToOuterW, (hs, hw) => deltaOutputSum[0] * hs * hw).ToArray();
-					double[] dw = new double[deltaHW.Length * data.Inputs[i].Count];
-					int k = 0;
-					foreach (double iv in data.Inputs[i].Values)
-					{
-						dw[k] = deltaHW[k % deltaHW.Length] * iv;
-						k++;
-					}
+					NeuralValues hiddenOutputChanges = (deltaOutputLayer * results.HiddenSums[i].Transpose()) * _lerningRate;
+					double deltaHiddenLayer = (new NeuralValues(MatrixMath.Transpose(_HiddenLayers[i].Weights)) * deltaOutputLayer) / results.HiddenSums[i].Activate(dActivator);
+					_HiddenLayers[i].Weights = MatrixMath.Add(_HiddenLayers[i].Weights, hiddenOutputChanges.Values);
 				}
+				NeuralValues inputHiddenChanges = (deltaOutputLayer * data.Inputs.Transpose()) * _lerningRate;
+				_inputLayer.Weights = MatrixMath.Add(_HiddenLayers[0].Weights, inputHiddenChanges.Values);
 			}
 			return this;
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine("Hidden Layers:");
+			for (int i = 0; i < _HiddenLayers.Length; i++)
+			{
+				sb.AppendLine($"\t[{i}] W:{new NeuralValues(_HiddenLayers[i].Weights)}");
+			}
+			sb.AppendLine("Output Layer:");
+			sb.AppendLine($"\t W:{new NeuralValues(_outputLayer.Weights)}");
+
+			return sb.ToString();
 		}
 	}
 }

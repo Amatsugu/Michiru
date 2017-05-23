@@ -9,14 +9,14 @@ namespace Michiru.Neural
     {
 		public int Count { get; }
 
-		public NeuralValues[] Inputs { get; set; }
-		public NeuralValues[] Outputs { get; set; }
+		public NeuralValues Inputs { get; set; }
+		public NeuralValues Outputs { get; set; }
 
-		public TrainingData(double[][] inputs, double[][] outputs)
+		public TrainingData(double[,] inputs, double[,] outputs)
 		{
 			Count = inputs.Length;
-			Inputs = inputs.Select((v) => new NeuralValues(v)).ToArray();
-			Outputs = outputs.Select((v) => new NeuralValues(v)).ToArray();
+			Inputs = new NeuralValues(inputs);
+			Outputs = new NeuralValues(outputs);
 		}
     }
 }

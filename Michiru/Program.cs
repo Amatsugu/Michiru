@@ -8,29 +8,30 @@ namespace Michiru
     {
 		static void Main(string[] args)
 		{
-			TrainingData trainD = new TrainingData(new double[][]
+			TrainingData trainD = new TrainingData(new double[4,2]
 			{
-				new double[]{ 0, 0 },
-				new double[]{ 1, 0 },
-				new double[]{ 0, 1 },
-				new double[]{ 1, 1 }
-			}, new double[][]
+				{ 0, 0 },
+				{ 1, 0 },
+				{ 0, 1 },
+				{ 1, 1 }
+			}, new double[4,1]
 			{
-				new double[] { 0 },
-				new double[] { 1 },
-				new double[] { 1 },
-				new double[] { 0 }
+				{ 0 },
+				{ 1 },
+				{ 1 },
+				{ 0 }
 			});
 
-			NeuralValues input = new NeuralValues(new double[] { 1, 1 });
-			int[] hiddenLayers = new int[] { 3 };
-			Console.Write("Training... ");
+			
+
 			DateTime start = DateTime.Now;
-			NeuralNet net = new NeuralNet(2, 1, hiddenLayers, Activation.S);
-			net.Train(trainD, Activation.DS);
+			NeuralNet net = new NeuralNet(new int[] { 4, 2 }, 1, new int[] { 3 }, Activation.S, .7);
+			Console.WriteLine(net);
+			Console.Write("Training... ");
+			net.Train(trainD, Activation.DS, (int)20e6);
 			Console.WriteLine($"Done in {(DateTime.Now - start).TotalSeconds}s");
-			for(int i = 0; i < trainD.Inputs.Length; i++)
-				Console.WriteLine($"{trainD.Inputs[i]}{net.GetOutput(trainD.Inputs[i])}");
+			Console.WriteLine(net.GetOutput(trainD.Inputs));
+			Console.WriteLine(net);
 			Console.ReadLine();
         }
     }
