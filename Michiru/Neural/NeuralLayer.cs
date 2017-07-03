@@ -39,21 +39,22 @@ namespace Michiru.Neural
 
 		private double[,] _inputs;
 
-		public InputLayer(int inputCount, int inputWidh)
+		public InputLayer(int inputWidh)
 		{
 			Size = inputWidh;
-			_inputs = new double[inputCount, inputWidh];
+			//_inputs = new double[inputCount, inputWidh];
 		}
 
 		public InputLayer SetInputs(NeuralValues inputs)
 		{
-			for (int i = 0; i < _inputs.GetLength(0); i++)
+			_inputs = inputs.Values;
+			/*for (int i = 0; i < _inputs.GetLength(0); i++)
 			{
 				for (int j = 0; j < _inputs.GetLength(1); j++)
 				{
 					_inputs[i, j] = inputs[i, j];
 				}
-			}
+			}*/
 			return this;
 		}
 

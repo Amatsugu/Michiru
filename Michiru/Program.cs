@@ -25,7 +25,7 @@ namespace Michiru
 			
 
 			DateTime start = DateTime.Now;
-			NeuralNet net = new NeuralNet(new int[] { 4, 2 }, 1, new int[] { 3 }, Activation.S, .7);
+			NeuralNet net = new NeuralNet(2, 1, new int[] { 3 }, Activation.S, .7);
 			Console.WriteLine(net);
 			Console.Write("Training... ");
 			net.Train(trainD, Activation.DS, (int)20e6);
