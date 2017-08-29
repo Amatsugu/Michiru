@@ -1,6 +1,11 @@
 ﻿using Michiru.Calculation;
-using Michiru.Neural;
 using System;
+using SkiaSharp;
+using System.IO;
+using Michiru.Utils;
+using Michiru.Regression;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Michiru
 {
@@ -8,31 +13,47 @@ namespace Michiru
     {
 		static void Main(string[] args)
 		{
-			TrainingData trainD = new TrainingData(new double[4,2]
-			{
-				{ 0, 0 },
-				{ 1, 0 },
-				{ 0, 1 },
-				{ 1, 1 }
-			}, new double[4,1]
-			{
-				{ 0 },
-				{ 1 },
-				{ 1 },
-				{ 0 }
-			});
+			var trainX = ChiruMatrix.FromJSON(File.ReadAllText(@"D:\ChiruData\Train\X.json"));
+			var trainY = ChiruMatrix.FromJSON(File.ReadAllText(@"D:\ChiruData\Train\Y.json"));
+			var testY = ChiruMatrix.FromJSON(File.ReadAllText(@"D:\ChiruData\Test\Y.json"));
+			var testX = ChiruMatrix.FromJSON(File.ReadAllText(@"D:\ChiruData\Test\X.json"));
 
-			
+			/*(ChiruMatrix trainX, ChiruMatrix trainY) = ImagePreProcessor.Flatten(@"D:\ChiruData\Train", "Non-ZR");
+			(ChiruMatrix testX, ChiruMatrix testY) = ImagePreProcessor.Flatten(@"D:\ChiruData\Test", "Non-ZR");
 
-			DateTime start = DateTime.Now;
-			NeuralNet net = new NeuralNet(2, 1, new int[] { 3 }, Activation.S, .7);
-			Console.WriteLine(net);
-			Console.Write("Training... ");
-			net.Train(trainD, Activation.DS, (int)20e6);
-			Console.WriteLine($"Done in {(DateTime.Now - start).TotalSeconds}s");
-			Console.WriteLine(net.GetOutput(trainD.Inputs));
-			Console.WriteLine(net);
+			File.WriteAllText(@"D:\ChiruData\Train\X.json", trainX.ToJSON());
+			File.WriteAllText(@"D:\ChiruData\Train\Y.json", trainY.ToJSON());
+			File.WriteAllText(@"D:\ChiruData\Test\X.json", testX.ToJSON());
+			File.WriteAllText(@"D:\ChiruData\Test\Y.json", testY.ToJSON());*/
+
+
+			//Standardize
+			trainX /= 255;
+			testX /= 255;
+
+
+			var result = LogisticRegression.Model(trainX, trainY, testX, testY, 3000, .0001, true);
+
+			File.WriteAllText(@"D:\ChiruData\modelW.json", result.w.ToJSON());
+			File.WriteAllText(@"D:\ChiruData\modelB.json", result.b.ToString());
+
+			Console.WriteLine($"Train Accuracy: {result.trainAccuracy}%");
+			Console.WriteLine($"Test Accuracy: {result.testAccuracy}%");
+
+			Console.WriteLine(result.testPY);
+
+			/*var w = ChiruMatrix.FromJSON(File.ReadAllText(@"D:\ChiruData\modelW.json"));
+			var b = double.Parse(File.ReadAllText(@"D:\ChiruData\modelB.json"));
+			var trainPredictY = LogisticRegression.Predict(w, b, trainX);
+			var testPredictY = LogisticRegression.Predict(w, b, testX);
+
+
+			Console.WriteLine($"Train Accuracy: {100 - ((trainPredictY - trainY).Abs().Mean() * 100)}%");
+			Console.WriteLine($"Test Accuracy: {100 - ((testPredictY - testY).Abs().Mean() * 100)}%");*/
+
+
+
 			Console.ReadLine();
-        }
+		}
     }
 }

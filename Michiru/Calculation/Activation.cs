@@ -23,6 +23,8 @@ namespace Michiru.Calculation
 			return o;
 		}
 
+		public static ChiruMatrix Activate(ChiruMatrix x, ActivationFunction activator) => Activate(x.Values, activator).AsMatrix();
+
 		public static double S(double x) => 1 / (1 + Math.Pow(Math.E, -x));
 
 		public static double DS(double x) => Math.Pow(Math.E, x)/Math.Pow(Math.Pow(Math.E, x) + 1, 2);
