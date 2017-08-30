@@ -12,7 +12,7 @@ namespace Michiru.Regression
 		public static (ChiruMatrix dw, double db, double cost) Propagate(ChiruMatrix w, double b, ChiruMatrix X, ChiruMatrix Y)
 		{
 			var m = Y.Width;
-			var a = ((w.Transpose() * X) + b).Activate(Activation.S);
+			var a = ((w.Transpose() * X) + b).Activate(ActivationFunction.Sigmoid);
 			var loss = ChiruMatrix.Zero(a.Height, a.Width);
 			for (int i = 0; i < a.Height; i++)
 			{
@@ -57,7 +57,7 @@ namespace Michiru.Regression
 		{
 			var m = X.Width;
 			var predictionY = ChiruMatrix.Zero(1, m);
-			var a = ((w.Transpose() * X) + b).Activate(Activation.S);
+			var a = ((w.Transpose() * X) + b).Activate(ActivationFunction.Sigmoid);
 			for (int i = 0; i < m; i++)
 			{
 				a[0, i] = (a[0, i] > .5) ? 1 : 0;

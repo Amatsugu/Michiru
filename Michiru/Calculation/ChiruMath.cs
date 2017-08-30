@@ -53,6 +53,22 @@ namespace Michiru.Calculation
 			return o;
 		}
 
+		public static double[,] ColMultiply(double[,] a, double[,] b)
+		{
+			int h = a.GetLength(0), w = a.GetLength(1);
+			if (h != b.GetLength(0) && w != b.GetLength(1))
+				throw new Exception("Cannot Multiply these Matricies");
+			double[,] o = new double[h, w];
+			for (int i = 0; i < h; i++)
+			{
+				for (int j = 0; j < w; j++)
+				{
+					o[i, j] = a[i, j] * b[i, 0];
+				}
+			}
+			return o;
+		}
+
 		public static double[,] Subtract(double[,] a, double[,] b)
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
@@ -79,10 +95,6 @@ namespace Michiru.Calculation
 			if (h != b.GetLength(0) || w != b.GetLength(1))
 				throw new Exception("Cannot Add these Matricies");
 			double[,] o = new double[h, w];
-			/*Parallel.For(0, h, i =>
-			{
-			});
-			*/
 			for (int i = 0; i < h; i++)
 			{
 				for (int j = 0; j < w; j++)
@@ -93,20 +105,33 @@ namespace Michiru.Calculation
 			return o;
 		}
 
-		public static double[] Dot(double[,] a, double[,] b)
+		public static double[,] ColAdd(double[,] a, double[,] b)
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
 			if (h != b.GetLength(0))
-				throw new Exception("Cannot DOT these Matricies");
-			double[] o = new double[w];
-			/*Parallel.For(0, h, i =>
-			{
-			});*/
+				throw new Exception("Cannot Add these Matricies");
+			double[,] o = new double[h, w];
 			for (int i = 0; i < h; i++)
 			{
 				for (int j = 0; j < w; j++)
 				{
-					o[i] += a[i, j] * b[i, j];
+					o[i, j] = a[i, j] + b[i, 0];
+				}
+			}
+			return o;
+		}
+
+		public static double[,] Dot(double[,] a, double[,] b)
+		{
+			int h = a.GetLength(0), w = a.GetLength(1);
+			if (h != b.GetLength(1))
+				throw new Exception("Cannot DOT these Matricies");
+			double[,] o = new double[1,b.GetLength(1)];
+			for (int i = 0; i < h; i++)
+			{
+				for (int j = 0; j < w; j++)
+				{
+					o[0,i] += a[i, j] * b[j, i];
 				}
 			}
 			return o;
