@@ -30,10 +30,10 @@ namespace Michiru.Neural
 		{
 			var m = Y.Width;
 			var dZ2 = A2 - Y;
-			var dW2 = (dZ2 * A1.Transpose()) / m;
+			var dW2 = (dZ2 * A1.T) / m;
 			var db2 = dZ2.SumToMatrix(1) / m;
 			var dZ1 = (W2.Transpose() * dZ2).ColMultiply(Z1.DeActivate(ActivationFunction.TanH));
-			var dW1 = (dZ1 * X.Transpose()) / m;
+			var dW1 = (dZ1 * X.T) / m;
 			var db1 = dZ1.SumToMatrix(1) / m;
 
 			return (dW1, db1, dW2, db2);
@@ -41,10 +41,10 @@ namespace Michiru.Neural
 
 		public static (ChiruMatrix W1, ChiruMatrix b1, ChiruMatrix W2, ChiruMatrix b2) UpdateParameters(ChiruMatrix W1, ChiruMatrix b1, ChiruMatrix W2, ChiruMatrix b2, ChiruMatrix dW1, ChiruMatrix db1, ChiruMatrix dW2, ChiruMatrix db2, double learningRate = 1.2)
 		{
-			W1 -= (learningRate * dW1);
-			b1 -= (learningRate * db1);
-			W2 -= (learningRate * dW2);
-			b2 -= (learningRate * db2);
+			W1 = W1 - (learningRate * dW1);
+			b1 = b1 - (learningRate * db1);
+			W2 = W2 - (learningRate * dW2);
+			b2 = b2 - (learningRate * db2);
 			return (W1, b1, W2, b2);
 		}
 
@@ -59,11 +59,11 @@ namespace Michiru.Neural
 				var cost = ComputeCost(forward.A2, Y, parameters.W1, parameters.b1, parameters.W2, parameters.b2);
 				var back = BackPropagation(X, Y, parameters.W1, parameters.b1, parameters.W2, parameters.b2, forward.Z1, forward.A1, forward.Z2, forward.A2);
 
-				parameters = UpdateParameters(parameters.W1, parameters.b1, parameters.W2, parameters.b2, back.dW1, back.db1, back.dW2, back.db2);
+				parameters = UpdateParameters(parameters.W1, parameters.b1, parameters.W2, parameters.b2, back.dW1, back.db1, back.dW2, back.db2, 0.02);
 
 				if (printCost && i % 1000 == 0)
 				{
-					Console.WriteLine($"[{i}] Cost: {cost} \t {(DateTime.Now - startTime).TotalSeconds}s \t+{(DateTime.Now - tic).TotalSeconds}s");
+					Console.WriteLine($"[{i}/{iterations}] Cost: {cost} \t {(DateTime.Now - startTime).TotalSeconds}s \t+{(DateTime.Now - tic).TotalSeconds}s");
 					tic = DateTime.Now;
 				}
 			}
@@ -72,7 +72,7 @@ namespace Michiru.Neural
 
 		public static double ComputeCost(ChiruMatrix A2, ChiruMatrix Y, ChiruMatrix W1, ChiruMatrix b1, ChiruMatrix W2, ChiruMatrix b2)
 		{
-			var cost = A2.Map(Math.Log).Map(x => double.IsInfinity(x) ? 0 : x) / Y.T;
+			var cost = (A2.Map(Math.Log) * Y.T);
 			return cost.Sum();
 		}
 

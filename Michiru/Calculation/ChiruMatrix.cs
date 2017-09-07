@@ -16,7 +16,7 @@ namespace Michiru.Calculation
 		public int Width { get; }
 		public ChiruMatrix T => Transpose();
 
-		private static Random _RAND = new Random();
+		private static Random _RAND = new Random(2);
 
 		public ChiruMatrix(double[,] values)
 		{
@@ -99,14 +99,14 @@ namespace Michiru.Calculation
 		public static ChiruMatrix operator /(ChiruMatrix a, double[,] b) => ChiruMath.Dot(a.Values, b).AsMatrix();
 		public static ChiruMatrix operator /(double[,] a, ChiruMatrix b) => ChiruMath.Dot(a, b.Values).AsMatrix();
 		//Scalar
-		public static ChiruMatrix operator *(double a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.ScalarMultiply(a, b.Values));
-		public static ChiruMatrix operator *(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarMultiply(b, a.Values));
-		public static ChiruMatrix operator +(double a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.ScalarAdd(a, b.Values));
-		public static ChiruMatrix operator +(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarAdd(b, a.Values));
-		public static ChiruMatrix operator -(double a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.ScalarSubtract(-a, b.Values));
-		public static ChiruMatrix operator -(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarSubtract(b, a.Values));
-		public static ChiruMatrix operator /(double a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.ScalarDivide(a, b.Values));
-		public static ChiruMatrix operator /(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarDivide(b, a.Values));
+		public static ChiruMatrix operator *(double a, ChiruMatrix b) => b * a;
+		public static ChiruMatrix operator *(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarMultiply(a.Values, b));
+		public static ChiruMatrix operator +(double a, ChiruMatrix b) => b + a;
+		public static ChiruMatrix operator +(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarAdd(a.Values, b));
+		public static ChiruMatrix operator -(ChiruMatrix a) => a * -1;
+		public static ChiruMatrix operator -(double a, ChiruMatrix b) => -b + a;
+		public static ChiruMatrix operator -(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarSubtract(a.Values, b));
+		public static ChiruMatrix operator /(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarDivide(a.Values, b));
 
 		public ChiruMatrix Map(Func<double, double> f)
 		{
