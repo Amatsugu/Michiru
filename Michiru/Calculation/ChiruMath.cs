@@ -37,9 +37,6 @@ namespace Michiru.Calculation
 				throw new Exception("Cannot Multiply these Matricies");
 			int h = a.GetLength(0), w = b.GetLength(1);
 			double[,] o = new double[h, w];
-			/*Parallel.For(0, h, i =>
-			{
-			});*/
 			for (int i = 0; i < h; i++)
 			{
 				for (int j = 0; j < w; j++)
@@ -137,9 +134,6 @@ namespace Michiru.Calculation
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
 			double[,] o = new double[w, h];
-			/*Parallel.For(0, h, i =>
-			{
-			});*/
 			for (int i = 0; i < h; i++)
 			{
 				for (int j = 0; j < w; j++)
@@ -204,23 +198,6 @@ namespace Michiru.Calculation
 				}
 			}
 			return o;
-		}
-
-		public static double[,] Abs(double[,] a)
-		{
-			int h = a.GetLength(0), w = a.GetLength(1);
-
-			/*Parallel.For(0, h, i =>
-			{
-			});*/
-			for (int i = 0; i < h; i++)
-			{
-				for (int j = 0; j < w; j++)
-				{
-					a[i, j] = Math.Abs(a[i, j]);
-				}
-			}
-			return a;
 		}
 	}
 }

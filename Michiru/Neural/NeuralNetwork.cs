@@ -31,10 +31,10 @@ namespace Michiru.Neural
 			var m = Y.Width;
 			var dZ2 = A2 - Y;
 			var dW2 = (dZ2 * A1.T) / m;
-			var db2 = dZ2.SumToMatrix(1) / m;
-			var dZ1 = (W2.Transpose() * dZ2).ColMultiply(Z1.DeActivate(ActivationFunction.TanH));
+			var db2 = dZ2.SumAxis(1) / m;
+			var dZ1 = (W2.T * dZ2).ColMultiply(Z1.DeActivate(ActivationFunction.TanH));
 			var dW1 = (dZ1 * X.T) / m;
-			var db1 = dZ1.SumToMatrix(1) / m;
+			var db1 = dZ1.SumAxis(1) / m;
 
 			return (dW1, db1, dW2, db2);
 		}

@@ -21,8 +21,8 @@ namespace Michiru
 			//Standardize
 			trainX /= 255;
 			testX /= 255;
-
 			*/
+
 			var X = new double[,] 
 			{
 				{  1.62434536, -0.61175641, -0.52817175},
@@ -33,10 +33,10 @@ namespace Michiru
 				{ 1.74481176, -0.7612069, 0.3190391 }
 			}.AsMatrix();
 			var r = NeuralNetwork.Model(X, Y, 4, 10000, true);
-			Console.WriteLine($"W1: {r.W1}");
-			Console.WriteLine($"b1: {r.b1}");
-			Console.WriteLine($"W2: {r.W2}");
-			Console.WriteLine($"b2: {r.b2}");
+			Console.WriteLine($"W1:\n{r.W1}");
+			Console.WriteLine($"b1:\n{r.b1}");
+			Console.WriteLine($"W2:\n{r.W2}");
+			Console.WriteLine($"b2:\n{r.b2}");
 			Console.ReadLine();
 		}
     }

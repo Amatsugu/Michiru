@@ -45,7 +45,7 @@ namespace Michiru.Calculation
 		{
 		}
 
-		public override double Activate(double x) => /*Math.Pow(Math.E, x) / (Math.Pow(Math.E, x) + 1);*/1 / (1 + Math.Pow(Math.E, -x));
+		public override double Activate(double x) => 1 / (1 + Math.Pow(Math.E, -x));
 		public override double DeActivate(double x) => Math.Pow(Math.E, x) / Math.Pow(Math.Pow(Math.E, x) + 1, 2);
 
 	}
@@ -56,8 +56,8 @@ namespace Michiru.Calculation
 		{
 		}
 
-		public override double Activate(double x) => Math.Tanh(x);// (1 - Math.Pow(Math.E, -2 * x) / (1 + Math.Pow(Math.E, 2 * x)));
-		public override double DeActivate(double x) => 0;//(1 - Math.Pow(Math.Tanh(x), 2));
+		public override double Activate(double x) => Math.Tanh(x);
+		public override double DeActivate(double x) => (1 - Math.Pow(Math.Tanh(x), 2));
 
 		public override ChiruMatrix DeActivate(ChiruMatrix z) => 1 - z.Map(x => Math.Pow(x, 2));
 
