@@ -43,7 +43,7 @@ namespace ChiruTests
 		public void Subtract()
 		{
 			var r = a - b;
-			var e = ChiruMatrix.Zero(3, 3);
+			var e = ChiruMatrix.Zeros(3, 3);
 			Assert.AreEqual(r, e);
 		}
 

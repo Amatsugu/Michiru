@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,9 +83,9 @@ namespace Michiru.Calculation
 			return o;
 		}
 
-		public static double[,] ColMultiply(double[,] a, double[,] b)
+		public static double[,] ElementMultiply(double[,] a, double[,] b)
 		{
-			int h = a.GetLength(0), w = a.GetLength(1);
+			int h = a.GetLength(0), w = b.GetLength(1);
 			if (h != b.GetLength(0) && w != b.GetLength(1))
 				throw new Exception("Cannot Multiply these Matricies");
 			double[,] o = new double[h, w];

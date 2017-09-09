@@ -13,7 +13,7 @@ namespace Michiru.Regression
 		{
 			var m = Y.Width;
 			var a = ((w.T * X) + b).Activate(ActivationFunction.Sigmoid);
-			var loss = ChiruMatrix.Zero(a.Height, a.Width);
+			var loss = ChiruMatrix.Zeros(a.Height, a.Width);
 			for (int i = 0; i < a.Height; i++)
 			{
 				for (int j = 0; j < a.Width; j++)
@@ -56,7 +56,7 @@ namespace Michiru.Regression
 		public static ChiruMatrix Predict(ChiruMatrix w, double b, ChiruMatrix X)
 		{
 			var m = X.Width;
-			var predictionY = ChiruMatrix.Zero(1, m);
+			var predictionY = ChiruMatrix.Zeros(1, m);
 			var a = ((w.T * X) + b).Activate(ActivationFunction.Sigmoid);
 			for (int i = 0; i < m; i++)
 			{
@@ -67,7 +67,7 @@ namespace Michiru.Regression
 
 		public static (ChiruMatrix w, double b, double trainAccuracy, double testAccuracy, ChiruMatrix testPY, ChiruMatrix trainPY, List<double> costs) Model(ChiruMatrix trainX, ChiruMatrix trainY, ChiruMatrix testX, ChiruMatrix testY, int iterations = 2000, double learningRate = .5, bool printCost = false, Action<double> costOut = null)
 		{
-			var w = ChiruMatrix.Zero(trainX.Height, 1);
+			var w = ChiruMatrix.Zeros(trainX.Height, 1);
 			double b = 0;
 			var result = Optimize(w, b, trainX, trainY, iterations, learningRate, printCost, costOut);
 			w = result.w;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,14 +60,14 @@ namespace Michiru.Calculation
 		/// </summary>
 		/// <param name="size">Size of the matrix</param>
 		/// <returns></returns>
-		public static ChiruMatrix Zero(int size) => Zero(size, size);
+		public static ChiruMatrix Zeros(int size) => Zeros(size, size);
 		/// <summary>
 		/// Generates a new matrix with inital values of zero
 		/// </summary>
 		/// <param name="h">Height</param>
 		/// <param name="w">Width</param>
 		/// <returns></returns>
-		public static ChiruMatrix Zero(int h, int w) => new ChiruMatrix(new double[h, w]);
+		public static ChiruMatrix Zeros(int h, int w) => new ChiruMatrix(new double[h, w]);
 		//Random
 		/// <summary>
 		/// Generates a new square matrix with random initial values
@@ -123,7 +123,7 @@ namespace Michiru.Calculation
 		/// </summary>
 		/// <param name="b">Column Matrix</param>
 		/// <returns></returns>
-		public ChiruMatrix ColMultiply(ChiruMatrix b) => new ChiruMatrix(ChiruMath.ColMultiply(Values, b.Values));
+		public ChiruMatrix ElementMultiply(ChiruMatrix b) => new ChiruMatrix(ChiruMath.ElementMultiply(Values, b.Values));
 		//Dot
 		private ChiruMatrix Dot(ChiruMatrix b) => ChiruMath.Dot(Values, b.Values).AsMatrix();
 		public static ChiruMatrix operator /(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Dot(a.Values, b.Values).AsMatrix();
@@ -213,7 +213,7 @@ namespace Michiru.Calculation
 			ChiruMatrix sum;
 			if(axis == 0)
 			{
-				sum = Zero(1, Width);
+				sum = Zeros(1, Width);
 				for (int i = 0; i < Height; i++)
 				{
 					for (int j = 0; j < Width; j++)
@@ -223,7 +223,7 @@ namespace Michiru.Calculation
 				}
 			}else if(axis == 1)
 			{
-				sum = Zero(Height, 1);
+				sum = Zeros(Height, 1);
 				for (int i = 0; i < Height; i++)
 				{
 					for (int j = 0; j < Width; j++)
