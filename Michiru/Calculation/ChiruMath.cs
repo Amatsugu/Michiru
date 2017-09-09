@@ -201,7 +201,7 @@ namespace Michiru.Calculation
 		public static double[,] Dot(double[,] a, double[,] b)
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
-			if (h != b.GetLength(1))
+			if (a.GetLength(1) != b.GetLength(0))
 				throw new Exception("Cannot DOT these Matricies");
 			double[,] o = new double[1,b.GetLength(1)];
 			if (!PARALLEL)
@@ -210,7 +210,7 @@ namespace Michiru.Calculation
 				{
 					for (int j = 0; j < w; j++)
 					{
-						o[i, j] = a[i, j] * b[j, i];
+						o[0, i] += a[i, j] * b[j, i];
 					}
 				}
 			}
@@ -220,7 +220,7 @@ namespace Michiru.Calculation
 				{
 					for (int j = 0; j < w; j++)
 					{
-						o[i, j] = a[i, j] * b[j, i];
+						o[0, i] += a[i, j] * b[j, i];
 					}
 				});
 			}

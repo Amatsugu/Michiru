@@ -55,6 +55,8 @@ namespace Michiru.Neural
 			(int nX, int nH, int nY) = LayerSizes(X, Y, hiddenLayerSize);
 			var parameters = InitalizeParameters(nX, nH, nY);
 			DateTime tic, startTime = tic = DateTime.Now;
+			int percentile = iterations / 10;
+			percentile = percentile == 0 ? 1 : percentile;
 			for (int i = 0; i < iterations; i++)
 			{
 				var forward = ForwardPropagation(X, parameters.W1, parameters.b1, parameters.W2, parameters.b2);
@@ -63,9 +65,9 @@ namespace Michiru.Neural
 
 				parameters = UpdateParameters(parameters.W1, parameters.b1, parameters.W2, parameters.b2, back.dW1, back.db1, back.dW2, back.db2);
 
-				if (printCost && i % 1000 == 0)
+				if (printCost && (i+1) % percentile == 0)
 				{
-					Console.WriteLine($"[{i}/{iterations}] Cost: {cost} \t {(DateTime.Now - startTime).TotalSeconds}s \t+{(DateTime.Now - tic).TotalSeconds}s");
+					Console.WriteLine($"[{i+1}/{iterations}] Cost: {cost} \t {(DateTime.Now - startTime).TotalSeconds}s \t+{(DateTime.Now - tic).TotalSeconds}s");
 					tic = DateTime.Now;
 				}
 			}
