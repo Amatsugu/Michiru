@@ -7,6 +7,8 @@ namespace Michiru.Neural
 {
     public class NeuralNetwork
     {
+		private static readonly ActivationFunction activationFunction = ActivationFunction.TanH;
+
 		public static (ChiruMatrix W1, ChiruMatrix b1, ChiruMatrix W2, ChiruMatrix b2) InitalizeParameters(int nX, int nH, int nY)
 		{
 			var W1 = ChiruMatrix.Random(nH, nX);
@@ -19,7 +21,7 @@ namespace Michiru.Neural
 		public static (ChiruMatrix Z1, ChiruMatrix A1, ChiruMatrix Z2, ChiruMatrix A2) ForwardPropagation(ChiruMatrix X, ChiruMatrix W1, ChiruMatrix b1, ChiruMatrix W2, ChiruMatrix b2)
 		{
 			var Z1 = (W1 * X).ColAdd(b1);
-			var A1 = Z1.Activate(ActivationFunction.TanH);
+			var A1 = Z1.Activate(activationFunction);
 			var Z2 = (W2 * A1).ColAdd(b2);
 			var A2 = Z2.Activate(ActivationFunction.Sigmoid);
 
@@ -32,7 +34,7 @@ namespace Michiru.Neural
 			var dZ2 = A2 - Y;
 			var dW2 = (dZ2 * A1.T) / m;
 			var db2 = dZ2.SumAxis(1) / m;
-			var dZ1 = (W2.T * dZ2).ColMultiply(Z1.DeActivate(ActivationFunction.TanH));
+			var dZ1 = (W2.T * dZ2).ColMultiply(1 - A1.Map(x => Math.Pow(x, 2)));
 			var dW1 = (dZ1 * X.T) / m;
 			var db1 = dZ1.SumAxis(1) / m;
 
@@ -59,7 +61,7 @@ namespace Michiru.Neural
 				var cost = ComputeCost(forward.A2, Y, parameters.W1, parameters.b1, parameters.W2, parameters.b2);
 				var back = BackPropagation(X, Y, parameters.W1, parameters.b1, parameters.W2, parameters.b2, forward.Z1, forward.A1, forward.Z2, forward.A2);
 
-				parameters = UpdateParameters(parameters.W1, parameters.b1, parameters.W2, parameters.b2, back.dW1, back.db1, back.dW2, back.db2, 0.02);
+				parameters = UpdateParameters(parameters.W1, parameters.b1, parameters.W2, parameters.b2, back.dW1, back.db1, back.dW2, back.db2);
 
 				if (printCost && i % 1000 == 0)
 				{
@@ -70,10 +72,16 @@ namespace Michiru.Neural
 			return parameters;
 		}
 
+		public static ChiruMatrix Predict(ChiruMatrix W1, ChiruMatrix b1, ChiruMatrix W2, ChiruMatrix b2, ChiruMatrix X)
+		{
+			var r = ForwardPropagation(X, W1, b1, W2, b2);
+			return r.A2.Map(x => x > .5 ? 1 : 0);
+		}
+
 		public static double ComputeCost(ChiruMatrix A2, ChiruMatrix Y, ChiruMatrix W1, ChiruMatrix b1, ChiruMatrix W2, ChiruMatrix b2)
 		{
-			var cost = (A2.Map(Math.Log) * Y.T);
-			return cost.Sum();
+			var cost = (A2.Map(x => x == 0 ? 0 : Math.Log(x)).ColMultiply(Y)) + ((1 - Y).ColMultiply((1 - A2).Map(x => x == 0 ? 0 : Math.Log(x))));
+			return cost.Sum() / -Y.Width;
 		}
 
 		private static (int nX, int nH, int nY) LayerSizes(ChiruMatrix X, ChiruMatrix Y, int hiddenLayerSize = 4) => (X.Height, hiddenLayerSize, Y.Height);

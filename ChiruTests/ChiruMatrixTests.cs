@@ -121,7 +121,7 @@ namespace ChiruTests
 		[TestCategory("Mathix Operations")]
 		public void Transpose()
 		{
-			var r = a.Transpose();
+			var r = a.T;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{1, 1, 1 },

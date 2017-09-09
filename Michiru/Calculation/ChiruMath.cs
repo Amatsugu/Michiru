@@ -7,6 +7,7 @@ namespace Michiru.Calculation
 {
     public static class ChiruMath
     {
+		public static bool PARALLEL = true;
 		public static ChiruMatrix AsMatrix(this double[,] d) => new ChiruMatrix(d);
 
 		public static bool Equals(this double[] a, double[] b)
@@ -24,10 +25,27 @@ namespace Michiru.Calculation
 			int h = a.GetLength(0), w = a.GetLength(1);
 			if (a.GetLength(0) != b.GetLength(0) && a.GetLength(1) != b.GetLength(1))
 				return false;
-			for (int i = 0; i < h; i++)
-				for (int j = 0; j < w; j++)
-					if (a[i, j] != b[i, j])
-					return false;
+			if(!PARALLEL)
+			{
+				for (int i = 0; i < h; i++)
+					for (int j = 0; j < w; j++)
+						if (a[i, j] != b[i, j])
+							return false;
+			}else
+			{
+				bool r = true;
+				Parallel.For(0, h, (i, ls) =>
+				{
+					for (int j = 0; j < w; j++)
+						if (a[i, j] != b[i, j])
+						{
+							r = false;
+							ls.Stop();
+							return;
+						}
+				});
+				return r;
+			}
 			return true;
 		}
 
@@ -37,15 +55,30 @@ namespace Michiru.Calculation
 				throw new Exception("Cannot Multiply these Matricies");
 			int h = a.GetLength(0), w = b.GetLength(1);
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if(!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					for (int k = 0; k < a.GetLength(1); k++)
+					for (int j = 0; j < w; j++)
 					{
-						o[i, j] += a[i, k] * b[k, j];
+						for (int k = 0; k < a.GetLength(1); k++)
+						{
+							o[i, j] += a[i, k] * b[k, j];
+						}
 					}
 				}
+			}else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						for (int k = 0; k < a.GetLength(1); k++)
+						{
+							o[i, j] += a[i, k] * b[k, j];
+						}
+					}
+				});
 			}
 			return o;
 		}
@@ -56,12 +89,24 @@ namespace Michiru.Calculation
 			if (h != b.GetLength(0) && w != b.GetLength(1))
 				throw new Exception("Cannot Multiply these Matricies");
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if(!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i, j] * b[i, 0];
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] * b[i, j];
+					}
 				}
+			}else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] * b[i, j];
+					}
+				});
 			}
 			return o;
 		}
@@ -72,12 +117,25 @@ namespace Michiru.Calculation
 			if (h != b.GetLength(0) || w != b.GetLength(1))
 				throw new Exception("Cannot subtract these Matricies");
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i, j] - b[i, j];
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] - b[i, j];
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] - b[i, j];
+					}
+				});
 			}
 			return o;
 		}
@@ -88,12 +146,25 @@ namespace Michiru.Calculation
 			if (h != b.GetLength(0) || w != b.GetLength(1))
 				throw new Exception("Cannot Add these Matricies");
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i, j] + b[i, j];
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] + b[i, j];
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] + b[i, j];
+					}
+				});
 			}
 			return o;
 		}
@@ -104,12 +175,25 @@ namespace Michiru.Calculation
 			if (h != b.GetLength(0))
 				throw new Exception("Cannot Add these Matricies");
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i, j] + b[i, 0];
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] + b[i, 0];
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] + b[i, 0];
+					}
+				});
 			}
 			return o;
 		}
@@ -120,12 +204,25 @@ namespace Michiru.Calculation
 			if (h != b.GetLength(1))
 				throw new Exception("Cannot DOT these Matricies");
 			double[,] o = new double[1,b.GetLength(1)];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[0,i] += a[i, j] * b[j, i];
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] * b[j, i];
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] * b[j, i];
+					}
+				});
 			}
 			return o;
 		}
@@ -134,12 +231,25 @@ namespace Michiru.Calculation
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
 			double[,] o = new double[w, h];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[j, i] = a[i, j];
+					for (int j = 0; j < w; j++)
+					{
+						o[j, i] = a[i, j];
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[j, i] = a[i, j];
+					}
+				});
 			}
 			return o;
 		}
@@ -148,12 +258,25 @@ namespace Michiru.Calculation
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i,j] * b;
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] * b;
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] * b;
+					}
+				});
 			}
 			return o;
 		}
@@ -162,12 +285,25 @@ namespace Michiru.Calculation
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i, j] + b;
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] + b;
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] + b;
+					}
+				});
 			}
 			return o;
 		}
@@ -176,12 +312,25 @@ namespace Michiru.Calculation
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i, j] - b;
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] - b;
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] - b;
+					}
+				});
 			}
 			return o;
 		}
@@ -190,12 +339,25 @@ namespace Michiru.Calculation
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
 			double[,] o = new double[h, w];
-			for (int i = 0; i < h; i++)
+			if (!PARALLEL)
 			{
-				for (int j = 0; j < w; j++)
+				for (int i = 0; i < h; i++)
 				{
-					o[i, j] = a[i, j] / b;
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] / b;
+					}
 				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] / b;
+					}
+				});
 			}
 			return o;
 		}

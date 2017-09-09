@@ -16,7 +16,7 @@ namespace Michiru.Calculation
 		public int Width { get; }
 		public ChiruMatrix T => Transpose();
 
-		private static Random _RAND = new Random(2);
+		private static Random _RAND = new Random();
 
 		public ChiruMatrix(double[,] values)
 		{
@@ -102,19 +102,19 @@ namespace Michiru.Calculation
 		public ChiruMatrix Copy() => ((double[,])Values.Clone()).AsMatrix();
 		//Add
 		private ChiruMatrix Add(ChiruMatrix b) => new ChiruMatrix(ChiruMath.Add(Values, b.Values));
-		public static ChiruMatrix operator +(ChiruMatrix a, ChiruMatrix b) => a.Add(b);
+		public static ChiruMatrix operator +(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Add(a.Values, b.Values).AsMatrix();
 		public static ChiruMatrix operator +(ChiruMatrix a, double[,] b) => new ChiruMatrix(ChiruMath.Add(a.Values, b));
 		public static ChiruMatrix operator +(double[,] a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.Add(a, b.Values));
 		//Add Col
 		public ChiruMatrix ColAdd(ChiruMatrix b) => new ChiruMatrix(ChiruMath.ColAdd(Values, b.Values));
 		//Subtract
 		private ChiruMatrix Subtract(ChiruMatrix b) => new ChiruMatrix(ChiruMath.Subtract(Values, b.Values));
-		public static ChiruMatrix operator -(ChiruMatrix a, ChiruMatrix b) => a.Subtract(b);
+		public static ChiruMatrix operator -(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Subtract(a.Values, b.Values).AsMatrix();
 		public static ChiruMatrix operator -(ChiruMatrix a, double[,] b) => new ChiruMatrix(ChiruMath.Subtract(a.Values, b));
 		public static ChiruMatrix operator -(double[,] a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.Subtract(a, b.Values));
 		//Multiply
 		private ChiruMatrix Multiply(ChiruMatrix b) => new ChiruMatrix(ChiruMath.Multiply(Values, b.Values));
-		public static ChiruMatrix operator *(ChiruMatrix a, ChiruMatrix b) => a.Multiply(b);
+		public static ChiruMatrix operator *(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Multiply(a.Values, b.Values).AsMatrix();
 		public static ChiruMatrix operator *(ChiruMatrix a, double[,] b) => new ChiruMatrix(ChiruMath.Multiply(a.Values, b));
 		public static ChiruMatrix operator *(double[,] a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.Multiply(a, b.Values));
 		//Multiply Col
