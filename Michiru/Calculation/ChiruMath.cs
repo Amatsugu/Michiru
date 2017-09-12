@@ -111,6 +111,35 @@ namespace Michiru.Calculation
 			return o;
 		}
 
+		public static double[,] ElementDivide(double[,] a, double[,] b)
+		{
+			int h = a.GetLength(0), w = b.GetLength(1);
+			if (h != b.GetLength(0) && w != b.GetLength(1))
+				throw new Exception("Cannot Multiply these Matricies");
+			double[,] o = new double[h, w];
+			if (!PARALLEL)
+			{
+				for (int i = 0; i < h; i++)
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] / b[i, j];
+					}
+				}
+			}
+			else
+			{
+				Parallel.For(0, h, i =>
+				{
+					for (int j = 0; j < w; j++)
+					{
+						o[i, j] = a[i, j] / b[i, j];
+					}
+				});
+			}
+			return o;
+		}
+
 		public static double[,] Subtract(double[,] a, double[,] b)
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);

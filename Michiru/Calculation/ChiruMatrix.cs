@@ -138,6 +138,9 @@ namespace Michiru.Calculation
 		public static ChiruMatrix operator -(double a, ChiruMatrix b) => -b + a;
 		public static ChiruMatrix operator -(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarSubtract(a.Values, b));
 		public static ChiruMatrix operator /(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarDivide(a.Values, b));
+		public static ChiruMatrix operator /(double a, ChiruMatrix b) => (1 / a) * b;
+
+		public ChiruMatrix Divide(ChiruMatrix b) => ChiruMath.ElementDivide(Values, b.Values).AsMatrix();
 
 		/// <summary>
 		/// Aplies the given function to every element of this matrix, the result is placed in a new matrix
@@ -175,11 +178,16 @@ namespace Michiru.Calculation
 			return false;
 		}
 
+		public bool IsEmpty() => Height == 0 || Width == 0;
+
+
 		/// <summary>
 		/// Checks if any element in the matrix is NaN
 		/// </summary>
 		/// <returns></returns>
 		public bool HasNaN() => Any(double.IsNaN);
+
+		public double ErrorWith(ChiruMatrix Y) => (((Y / T) + ((1 - Y) / (1 - T))).Sum() / Y.Width) * 100;
 
 		public ChiruMatrix Activate(ActivationFunction activator) => activator.Activate(this);
 		public ChiruMatrix DeActivate(ActivationFunction activator) => activator.DeActivate(this);

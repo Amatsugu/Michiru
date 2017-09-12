@@ -1,26 +1,26 @@
-﻿using Michiru.Calculation;
+using Michiru.Calculation;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Michiru.Neural
 {
-    public class LinearCache
+    public struct LinearCache
     {
 		public ChiruMatrix A { get; set; }
 		public ChiruMatrix W { get; set; }
-		public ChiruMatrix b { get; set; }
+		public ChiruMatrix B { get; set; }
 
 		public LinearCache(ChiruMatrix A, ChiruMatrix W, ChiruMatrix b)
 		{
 			this.A = A;
 			this.W = W;
-			this.b = b;
+			this.B = b;
 		}
 	}
 
 
-	public class ActivationCache
+	public struct ActivationCache
 	{
 		public LinearCache Linear { get; set; }
 		public ChiruMatrix Z { get; set; }

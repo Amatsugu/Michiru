@@ -14,6 +14,7 @@ namespace Michiru
 	{
 		static void Main(string[] args)
 		{
+			
 			Console.Write("Loading Data... ");
 			var trainX = ChiruMatrix.FromJSON(File.ReadAllText(@"D:\ChiruData\Train\X.json"));
 			var trainY = ChiruMatrix.FromJSON(File.ReadAllText(@"D:\ChiruData\Train\Y.json"));
@@ -23,7 +24,8 @@ namespace Michiru
 			trainX /= 255;
 			testX /= 255;
 			Console.WriteLine("Done!");
-			/*var trainX = new double[,]
+			/*
+			var trainX = new double[,]
 			{
 				{ 0, 1, 1, 0 },
 				{ 0, 0, 1, 1}
@@ -35,15 +37,15 @@ namespace Michiru
 			var testX = trainX;
 			var testY = trainY;*/
 			Console.WriteLine("Training Model:");
-			var r = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 25, 8, 6, 1 }, 0.0075, 20, true);
+			var r = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 100, 25, 6 }, .0075, 10, true);
 			//File.WriteAllText(@"D:\ChiruData\DNN\b2.json", JsonConvert.SerializeObject(r));
 			Console.WriteLine("Done");
 			Console.Write("Testing Model... ");
 			var pT = DeepNeuralNetwork.Predict(r, trainX);
 			var p = DeepNeuralNetwork.Predict(r, testX);
 			Console.WriteLine("Done!");
-			Console.WriteLine($"Train Accuracy: {(((trainY / pT.T) + ((1 - trainY) / (1 - pT.T))).Sum() / trainY.Width) * 100}%");
-			Console.WriteLine($"Test Accuracy: {(((testY / p.T) + ((1 - testY) / (1 - p.T))).Sum() / testY.Width) * 100}%");
+			Console.WriteLine($"Train Accuracy: {pT.ErrorWith(trainY)}%");
+			Console.WriteLine($"Test Accuracy: {p.ErrorWith(testY)}%");
 			Console.ReadLine();
 		}
 	}

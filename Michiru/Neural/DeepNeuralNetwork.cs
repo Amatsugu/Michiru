@@ -40,7 +40,7 @@ namespace Michiru.Neural
 			for (int l = 0; l < L-1; l++)
 			{
 				var APrev = A;
-				(ChiruMatrix AA, ActivationCache cache1) = LinearActivationForward(APrev, parameters.W[l], parameters.B[l], ActivationFunction.ReLu);
+				(ChiruMatrix AA, ActivationCache cache1) = LinearActivationForward(APrev, parameters.W[l], parameters.B[l], ActivationFunction.TanH);
 				caches.Add(cache1);
 				APrev = A = AA;
 			}
@@ -69,13 +69,14 @@ namespace Michiru.Neural
 			var L = caches.Count;
 			var m = AL.Width;
 			var grads = new Gradients(L);
+			var dAL = -(Y.Divide(AL) - (1 - Y).Divide(1 - AL));
 
-			(grads.dA[L-1], grads.dW[L - 1], grads.db[L - 1]) = LinearActivationBackward(AL, caches[L - 1], ActivationFunction.Sigmoid);
+			(grads.dA[L-1], grads.dW[L - 1], grads.db[L - 1]) = LinearActivationBackward(dAL, caches[L - 1], ActivationFunction.Sigmoid);
 
 			for (int l = L-2; l >= 0; l--)
 			{
 				var curCache = caches[l];
-				(grads.dA[l], grads.dW[l], grads.db[l]) = LinearActivationBackward(grads.dA[l + 1], curCache, ActivationFunction.ReLu);
+				(grads.dA[l], grads.dW[l], grads.db[l]) = LinearActivationBackward(grads.dA[l + 1], curCache, ActivationFunction.TanH);
 			}
 			return grads;
 		}
@@ -90,22 +91,25 @@ namespace Michiru.Neural
 			return parameters;
 		}
 
-		public static Parameters Model(ChiruMatrix X, ChiruMatrix Y, int[] layers, double learningRate = 0.0075, int iterations = 3000, bool printCost = false)
+		public static Parameters Model(ChiruMatrix X, ChiruMatrix Y, int[] layers, double learningRate = 0.0075, int iterations = 3000, bool printCost = false, Action<int, double> statusReporter = null, Parameters parameters = null, Func<bool> cancel = null)
 		{
 			int percentile = iterations / 10;
 			percentile = percentile == 0 ? 1 : percentile;
-			var layerDims = new int[layers.Length + 1];
+			var layerDims = new int[layers.Length + 2];
 			layerDims[0] = X.Height;
-			for (int i = 1; i < layerDims.Length; i++)
+			layerDims[layerDims.Length - 1] = Y.Height;
+			for (int i = 1; i < layers.Length + 1; i++)
 			{
 				layerDims[i] = layers[i - 1];
 			}
-			var parameters = InitializeParameters(layerDims);
+			if(parameters == null)
+				parameters = InitializeParameters(layerDims);
 			DateTime tic, startTime = tic = DateTime.Now;
 			for (int i = 0; i < iterations; i++)
 			{
 				var f = ModelForward(X, parameters);
 				var cost = ComputeCost(f.AL, Y);
+				statusReporter?.Invoke(i, cost);
 				var b = ModelBackward(f.AL, Y, f.caches);
 				parameters = UpdateParameters(parameters, b, learningRate);
 				if (printCost && (i + 1) % percentile == 0)
@@ -113,6 +117,8 @@ namespace Michiru.Neural
 					Console.WriteLine($"[{i + 1}/{iterations}] Cost: {cost} \t {(DateTime.Now - startTime).TotalSeconds}s \t+{(DateTime.Now - tic).TotalSeconds}s");
 					tic = DateTime.Now;
 				}
+				if (cancel != null && cancel())
+					break;
 			}
 			return parameters;
 		}

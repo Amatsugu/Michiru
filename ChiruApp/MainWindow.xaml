@@ -1,4 +1,4 @@
-﻿<Window x:Class="ChiruApp.MainWindow"
+<Window x:Class="ChiruApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -19,19 +19,125 @@
 						<Grid.RowDefinitions >
 							<RowDefinition Height="2*"></RowDefinition>
 							<RowDefinition Height="*"></RowDefinition>
+							<RowDefinition Height="25"></RowDefinition>
 						</Grid.RowDefinitions>
-						<GroupBox Header="Loss" Grid.Column="0" Grid.Row="0">
-							<d3:ChartPlotter x:Name="LossGraph" Margin="10,10,20,10">
-								<d3:VerticalAxisTitle Content="Cost"/>
-								<d3:HorizontalAxisTitle Content="Iteration"/>
-							</d3:ChartPlotter>
+						<GroupBox Header="Visualization" Grid.Column="0" Grid.Row="0">
+							<TabControl>
+								<TabItem Header="Network">
+									
+								</TabItem>
+								<TabItem Header="Loss">
+									
+								</TabItem>
+							</TabControl>
 						</GroupBox>
 						<GroupBox Header="Options" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
-
+							<StackPanel>
+								<GroupBox Header="Training Data">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="20"/>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="30"/>
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition/>
+											<RowDefinition Height="5"/>
+											<RowDefinition/>
+											<RowDefinition Height="5"/>
+											<RowDefinition/>
+										</Grid.RowDefinitions>
+										<Label Content="X" Grid.Column="0"/>
+										<TextBox Grid.Column="1" Name="xLocation" Padding="0 5 0 5"/>
+										<Button Content="..." Grid.Column="2" Click="XBrowse"/>
+										<Label Content="Y" Grid.Column="0" Grid.Row="2"/>
+										<TextBox Grid.Column="1" Grid.Row="2" Name="yLocation" Padding="0 5 0 5"/>
+										<Button Content="..." Grid.Column="2" Grid.Row="2" Click="YBrowse"/>
+										<Button Content="Load Data" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Click="LoadDataClick"/>
+									</Grid>
+								</GroupBox>
+								<GroupBox Header="Network Shape">
+									<StackPanel>
+										<Label Content="Input Layer: No Data" Name="inputSizeLabel"/>
+										<Label Content="Output Layer: No Data" Name="outputSizeLabel"/>
+										<ListBox Name="layers">
+											<ListBox.ItemTemplate>
+												<DataTemplate>
+													<Grid Margin="0,2">
+														<Grid.ColumnDefinitions>
+															<ColumnDefinition/>
+															<ColumnDefinition/>
+														</Grid.ColumnDefinitions>
+														<Label Content="{Binding LayerName}" Width="150"/>
+														<TextBox Grid.Column="1" Text="{Binding LayerDepth}" KeyUp="ValidateText" Width="50" Padding="0 5 0 5"></TextBox>
+													</Grid>
+												</DataTemplate>
+											</ListBox.ItemTemplate>
+										</ListBox>
+										<Grid Margin="0 5 0 0">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition/>
+												<ColumnDefinition Width="5"/>
+												<ColumnDefinition/>
+											</Grid.ColumnDefinitions>
+											<Button Content="Add Layer" Click="AddLayer" Name="addLayer"/>
+											<Button Content="Remove Layer" Grid.Column="2" Click="RemoveLayer" Name="removeLayer"/>
+										</Grid>
+									</StackPanel>
+								</GroupBox>
+								<GroupBox Header="Hyperparameters">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="100"></ColumnDefinition>
+											<ColumnDefinition Width="*"/>
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition/>
+											<RowDefinition Height="5"/>
+											<RowDefinition/>
+										</Grid.RowDefinitions>
+										<Label Content="Learning Rate:"/>
+										<TextBox Grid.Column="1" Text="0.0075" Padding="0 5 0 5" KeyUp="ValidateText"/>
+										<Label Content="Iterations:" Grid.Row="2"/>
+										<TextBox Grid.Row="2" Grid.Column="1" Text="1000" Padding="0 5 0 5" Name="iterations" KeyUp="ValidateText"/>
+									</Grid>
+								</GroupBox>
+								<GroupBox Header="Training">
+									<StackPanel>
+										<Button Content="Train 1 Iteration" Click="TrainOnce" Name="trainOnce"/>
+										<Button Content="Train All" Margin="0 5 0 0" Click="TrainAll" Name="trainAll"/>
+										<Button Content="Stop" Margin="0 5 0 0" Click="StopTraining" Name="stopTraining" IsEnabled="False"/>
+									</StackPanel>
+								</GroupBox>
+								<GroupBox Header="Network">
+									<StackPanel>
+										<Button Content="Load Network" Click="LoadNetwork"/>
+										<Button Content="Save Network" Margin="0 5 0 0" Click="SaveNetwork"/>
+										<Button Content="Reset Network" Margin="0 5 0 0" Click="ResetNetwork"/>
+									</StackPanel>
+								</GroupBox>
+							</StackPanel>
 						</GroupBox>
 						<GroupBox Header="Training Set" Grid.Column="0" Grid.Row="1">
-
+							<ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+									<ItemsControl Name="trainingSetDisplay" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+									<ItemsControl.ItemsPanel>
+										<ItemsPanelTemplate>
+											<StackPanel Orientation="Horizontal" Height="150"/>
+										</ItemsPanelTemplate>
+									</ItemsControl.ItemsPanel>
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<GroupBox Header="{Binding ImageName}" Padding="0">
+													<Image Height="100" Width="100" Source="{Binding ImageSource}"/>
+												</GroupBox>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+							</ScrollViewer>
 						</GroupBox>
+						<Label Content="OK" Grid.Row="2" Name="statusText"/>
+						<ProgressBar Grid.Column="2" Grid.Row="2" Name="progressBar" Value="100" Margin="0 3 0 3"/>
 					</Grid>
 			</TabItem>
 			<TabItem Header="Predict">
@@ -47,17 +153,60 @@
 						</Grid.RowDefinitions>
 						
 						<ScrollViewer Grid.Column="0" Grid.Row="0">
-							<StackPanel>
-								
-							</StackPanel>
+							<ListBox Name="testingSetDisplay">
+								<ListBox.ItemTemplate>
+									<DataTemplate>
+										<Grid>
+											<Grid.RowDefinitions>
+												<RowDefinition Height="100"/>
+												<RowDefinition Height="*"/>
+											</Grid.RowDefinitions>
+											<Image Height="100" Width="100" Source="{Binding ImageSource}"/>
+											<Label Content="{Binding ImageName}"/>
+										</Grid>
+									</DataTemplate>
+								</ListBox.ItemTemplate>
+							</ListBox>
 						</ScrollViewer>
 
 						<GroupBox Header="Current Image" Grid.Column="1">
-							<Image ></Image>
+							<Image Name="selectedImage" Height="auto" Width="auto"/>
 						</GroupBox>
 
 						<GroupBox Header="Options" Grid.Column="2" Grid.RowSpan="2">
-							
+							<StackPanel>
+								<GroupBox Header="Testing Data">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="50"/>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="50"/>
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition/>
+											<RowDefinition/>
+										</Grid.RowDefinitions>
+										<Label Content="X"/>
+										<TextBox Grid.Column="1"/>
+										<Button Grid.Column="2" Content="... "/>
+										<Label Content="Y" Grid.Row="1"/>
+										<TextBox Grid.Column="1" Grid.Row="1"/>
+										<Button Grid.Column="2" Content="..." Grid.Row="1"/>
+									</Grid>
+								</GroupBox>
+								<GroupBox Header="Raw Data">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="50"/>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="50"/>
+										</Grid.ColumnDefinitions>
+										<Label Content="Image"/>
+										<TextBox Grid.Column="1"/>
+										<Button Grid.Column="2" Content="... "/>
+									</Grid>
+								</GroupBox>
+							</StackPanel>
 						</GroupBox>
 
 						<GroupBox Header="Stats" Grid.Row="1" Grid.ColumnSpan="2">							
