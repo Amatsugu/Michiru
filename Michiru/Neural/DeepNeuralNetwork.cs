@@ -40,7 +40,7 @@ namespace Michiru.Neural
 			for (int l = 0; l < L-1; l++)
 			{
 				var APrev = A;
-				(ChiruMatrix AA, ActivationCache cache1) = LinearActivationForward(APrev, parameters.W[l], parameters.B[l], ActivationFunction.TanH);
+				(ChiruMatrix AA, ActivationCache cache1) = LinearActivationForward(APrev, parameters.W[l], parameters.B[l], ActivationFunction.ReLu);
 				caches.Add(cache1);
 				APrev = A = AA;
 			}
@@ -76,7 +76,7 @@ namespace Michiru.Neural
 			for (int l = L-2; l >= 0; l--)
 			{
 				var curCache = caches[l];
-				(grads.dA[l], grads.dW[l], grads.db[l]) = LinearActivationBackward(grads.dA[l + 1], curCache, ActivationFunction.TanH);
+				(grads.dA[l], grads.dW[l], grads.db[l]) = LinearActivationBackward(grads.dA[l + 1], curCache, ActivationFunction.ReLu);
 			}
 			return grads;
 		}
@@ -90,8 +90,19 @@ namespace Michiru.Neural
 			}
 			return parameters;
 		}
-
-		public static Parameters Model(ChiruMatrix X, ChiruMatrix Y, int[] layers, double learningRate = 0.0075, int iterations = 3000, bool printCost = false, Action<int, double> statusReporter = null, Parameters parameters = null, Func<bool> cancel = null)
+		/// <summary>
+		/// Create a Network Model and train it
+		/// </summary>
+		/// <param name="X">The input data set</param>
+		/// <param name="Y">The expected outputs for the input data set</param>
+		/// <param name="layers">An array that represents the number and depth of the layers</param>
+		/// <param name="learningRate">Learning Rate of the network</param>
+		/// <param name="iterations">Number of iterations to train the network</param>
+		/// <param name="statusReporter">A callback that will be used to report the training status of the network</param>
+		/// <param name="parameters">Parameters for the network, from prior training</param>
+		/// <param name="cancel">A callback that will be used to determine if the training should be canceld after the current iteration</param>
+		/// <returns>The resulting parameters after training</returns>
+		public static Parameters Model(ChiruMatrix X, ChiruMatrix Y, int[] layers, double learningRate = 0.0075, int iterations = 3000, Parameters parameters = null, Action < int, double> statusReporter = null, Func<bool> cancel = null)
 		{
 			int percentile = iterations / 10;
 			percentile = percentile == 0 ? 1 : percentile;
@@ -112,17 +123,23 @@ namespace Michiru.Neural
 				statusReporter?.Invoke(i, cost);
 				var b = ModelBackward(f.AL, Y, f.caches);
 				parameters = UpdateParameters(parameters, b, learningRate);
-				if (printCost && (i + 1) % percentile == 0)
+				/*if (printCost && (i + 1) % percentile == 0)
 				{
 					Console.WriteLine($"[{i + 1}/{iterations}] Cost: {cost} \t {(DateTime.Now - startTime).TotalSeconds}s \t+{(DateTime.Now - tic).TotalSeconds}s");
 					tic = DateTime.Now;
-				}
+				}*/
 				if (cancel != null && cancel())
 					break;
 			}
 			return parameters;
 		}
 
+		/// <summary>
+		/// Make predictions based on a network model
+		/// </summary>
+		/// <param name="parameters">The parameters from a network model</param>
+		/// <param name="X">Data set to make predictions based on</param>
+		/// <returns>Matrix of the resulting predictions</returns>
 		public static ChiruMatrix Predict(Parameters parameters, ChiruMatrix X) => ModelForward(X, parameters).AL.Map(x => x > .5 ? 1 : 0);
 
 		public static double ComputeCost(ChiruMatrix AL, ChiruMatrix Y)

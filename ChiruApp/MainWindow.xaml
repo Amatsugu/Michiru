@@ -128,9 +128,14 @@
 									</ItemsControl.ItemsPanel>
 										<ItemsControl.ItemTemplate>
 											<DataTemplate>
-												<GroupBox Header="{Binding ImageName}" Padding="0">
-													<Image Height="100" Width="100" Source="{Binding ImageSource}"/>
-												</GroupBox>
+											<Grid>
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<Label Content="{Binding ImageNames}" HorizontalAlignment="Center"/>
+												<Image Height="100" Width="100" Source="{Binding ImageSource}" Grid.Row="1"/>
+											</Grid>
 											</DataTemplate>
 										</ItemsControl.ItemTemplate>
 									</ItemsControl>
@@ -170,7 +175,10 @@
 						</ScrollViewer>
 
 						<GroupBox Header="Current Image" Grid.Column="1">
-							<Image Name="selectedImage" Height="auto" Width="auto"/>
+							<Grid>
+								<Image Name="selectedImage" Height="auto" Width="auto"/>
+								<Label Content="Not Classified" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 10"/>
+							</Grid>
 						</GroupBox>
 
 						<GroupBox Header="Options" Grid.Column="2" Grid.RowSpan="2">
@@ -195,16 +203,32 @@
 									</Grid>
 								</GroupBox>
 								<GroupBox Header="Raw Data">
-									<Grid>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="50"/>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="50"/>
-										</Grid.ColumnDefinitions>
-										<Label Content="Image"/>
-										<TextBox Grid.Column="1"/>
-										<Button Grid.Column="2" Content="... "/>
-									</Grid>
+									<StackPanel>
+
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="50"/>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="50"/>
+											</Grid.ColumnDefinitions>
+											<Grid.RowDefinitions>
+												<RowDefinition/>
+												<RowDefinition/>
+											</Grid.RowDefinitions>
+											<Label Content="Image"/>
+											<TextBox Grid.Column="1"/>
+											<Button Grid.Column="2" Content="... "/>
+										</Grid>
+										<Grid Margin="0 5 0 0 ">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="5"/>
+												<ColumnDefinition Width="*"/>
+											</Grid.ColumnDefinitions>
+											<Button Content="Process Image"/>
+											<Button Content="Classify Image" Grid.Column="2"/>
+										</Grid>
+									</StackPanel>
 								</GroupBox>
 							</StackPanel>
 						</GroupBox>

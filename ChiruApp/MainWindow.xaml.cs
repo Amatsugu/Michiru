@@ -127,7 +127,7 @@ namespace ChiruApp
 			_isRunning = true;
 			UpdateTrainingButtons();
 			statusText.Content = "Training 1 Iteration...";
-			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX, _trainY, GetLayersArray(), 0.0075, 1, false, Status, _parameters));
+			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX, _trainY, GetLayersArray(), 0.0075, 1, _parameters, Status));
 			statusText.Content = StandbyMessage;
 			_isRunning = false;
 			UpdateTrainingButtons();
@@ -142,7 +142,7 @@ namespace ChiruApp
 			_isRunning = true;
 			UpdateTrainingButtons();
 			statusText.Content = $"Training {iterations.Text} Iterations...";
-			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX, _trainY, GetLayersArray(), 0.0075, int.Parse(iterations.Text), false, Status, _parameters, WillCancel));
+			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX, _trainY, GetLayersArray(), 0.0075, int.Parse(iterations.Text), _parameters, Status, WillCancel));
 			statusText.Content = StandbyMessage;
 			_isRunning = false;
 			UpdateTrainingButtons();
