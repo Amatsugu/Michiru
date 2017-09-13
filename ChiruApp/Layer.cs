@@ -10,5 +10,6 @@ namespace ChiruApp
 	{
 		public string LayerName { get; set; }
 		public int LayerDepth { get; set; }
+		public int ActivationFunc { get; set; } = 1;
 	}
 }

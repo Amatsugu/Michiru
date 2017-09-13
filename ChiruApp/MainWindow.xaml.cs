@@ -10,6 +10,8 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using SkiaSharp;
+using System;
 
 namespace ChiruApp
 {
@@ -18,13 +20,17 @@ namespace ChiruApp
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private ChiruMatrix _trainX;
-		private ChiruMatrix _trainY;
+		private ChiruMatrix _trainX, _testX;
+		private ChiruMatrix _trainY, _testY;
 		private Parameters _parameters = null;
 		private bool _willStop = false;
 		private bool _isRunning = false;
+		private bool _hasData = false;
 		private const string StandbyMessage = "Ready!";
 		private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
+		private SKSurface _lossSurf, _networkSurf;
+		private ChiruMatrix _lossData;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -34,78 +40,119 @@ namespace ChiruApp
 				LayerDepth = 5
 			});
 			layers.ItemsSource = _layers;
+			UpdateTrainingButtons();
+			//Initialize Diagrams
+			_lossSurf = SKSurface.Create(1680, 720, SKImageInfo.PlatformColorType, SKAlphaType.Opaque);
+			_networkSurf = SKSurface.Create(1680, 720, SKImageInfo.PlatformColorType, SKAlphaType.Opaque);			
 		}
 
-		private void XBrowse(object sender, RoutedEventArgs e)
+		private void TrainXBrowse(object sender, RoutedEventArgs e)
+		{
+			Browse(d => trainXLocation.Text = d.FileName);
+		}
+
+		private void Browse(Action<System.Windows.Forms.OpenFileDialog> action)
 		{
 			using (var dialog = new System.Windows.Forms.OpenFileDialog())
 			{
+				dialog.Filter = "JSON | *.json";
+				dialog.Multiselect = false;
 				dialog.FileOk += (s, c) =>
 				{
-					xLocation.Text = dialog.FileName;
+					action?.Invoke(dialog);
 				};
 				dialog.ShowDialog();
 			}
 		}
 
-		private void YBrowse(object sender, RoutedEventArgs e)
+		private void TrainYBrowse(object sender, RoutedEventArgs e)
 		{
-			using (var dialog = new System.Windows.Forms.OpenFileDialog())
-			{
-				dialog.FileOk += (s, c) =>
-				{
-					yLocation.Text = dialog.FileName;
-				};
-				dialog.ShowDialog();
-			}
+			Browse(d => trainYLocation.Text = d.FileName);
 		}
 
-		private async void LoadDataClick(object sender, RoutedEventArgs e)
+		private void TestXBrowse(object sender, RoutedEventArgs e)
 		{
-			string xL = xLocation.Text, yL = yLocation.Text;
-			statusText.Content = "Loading Data: Training X,Y...";
-			progressBar.Value = 50;
-			
-			(_trainX, _trainY) = await Task.Run(() =>
-			{
-				var X = ChiruMatrix.FromJSON(File.ReadAllText(xL));
-				var Y = ChiruMatrix.FromJSON(File.ReadAllText(yL));
-				return (X, Y);
-			}); 
+			Browse(d => testXLocation.Text = d.FileName);
+		}
+
+		private void TestYBrowse(object sender, RoutedEventArgs e)
+		{
+			Browse(d => testYLocation.Text = d.FileName);
+		}
+
+		private async void LoadTrainDataClick(object sender, RoutedEventArgs e)
+		{
+			string xL = trainXLocation.Text, yL = trainYLocation.Text;
+			if (string.IsNullOrWhiteSpace(xL) || string.IsNullOrWhiteSpace(yL))
+				return;
+			(_trainX, _trainY) = await Task.Run(() => LoadData(xL, yL)); 
 			progressBar.Value = 100;
 			statusText.Content = StandbyMessage;
-			UpdateDataDisplay();
+			_hasData = true;
+			trainingSetDisplay.ItemsSource = await UpdateDataDisplay(_trainX, _trainY);
+			UpdateTrainingButtons();
 		}
 
-		private void UpdateDataDisplay()
+		private async void LoadTestDataClick(object sender, RoutedEventArgs e)
 		{
-			inputSizeLabel.Content = $"Input Layer: {_trainX.Height}";
-			outputSizeLabel.Content = $"Ouput Layer: {_trainY.Height}";
+			string xL = testXLocation.Text, yL = testYLocation.Text;
+			if (string.IsNullOrWhiteSpace(xL) || string.IsNullOrWhiteSpace(yL))
+				return;
+			(_testX, _testY) = await Task.Run(() => LoadData(xL, yL));
+			progressBar.Value = 100;
+			statusText.Content = StandbyMessage;
+			_hasData = true;
+			testingSetDisplay.ItemsSource = await UpdateDataDisplay(_testX, _testY);
+			UpdateTrainingButtons();
+		}
+
+		private (ChiruMatrix X, ChiruMatrix Y) LoadData(string xL, string yL)
+		{
+			statusText.Dispatcher.Invoke(() => statusText.Content = "Loading Data: Training X...");
+			progressBar.Dispatcher.Invoke(() => progressBar.Value = 0);
+			var X = ChiruMatrix.FromJSON(File.ReadAllText(xL));
+			progressBar.Dispatcher.Invoke(() => progressBar.Value = 50);
+			statusText.Dispatcher.Invoke(() => statusText.Content = "Loading Data: Training Y...");
+			var Y = ChiruMatrix.FromJSON(File.ReadAllText(yL));
+			return (X, Y);
+		}
+
+		private async Task<ObservableCollection<ImageBox>> UpdateDataDisplay(ChiruMatrix x, ChiruMatrix y)
+		{
+			inputSizeLabel.Content = $"Input Layer: {x.Height}";
+			outputSizeLabel.Content = $"Ouput Layer: {y.Height}";
 			var boxes = new ObservableCollection<ImageBox>();
-			using (MemoryStream s = new MemoryStream())
+			await Task.Run(() =>
 			{
-				for (int i = 0; i < _trainX.Width; i++)
+				using (MemoryStream s = new MemoryStream())
 				{
-					statusText.Content = $"Decoding Image [{i+1}/{_trainX.Width}]";
-					ImagePreProcessor.Expand(_trainX[i], s);
-					var box = new ImageBox
+					for (int i = 0; i < x.Width; i++)
 					{
-						ImageName = $"IMG {i} - {_trainY[i]}",
-						ImageSource = new BitmapImage()
-					};
-					box.ImageSource.BeginInit();
-					box.ImageSource.StreamSource = s;
-					box.ImageSource.CacheOption = BitmapCacheOption.OnLoad;
-					box.ImageSource.EndInit();
-					boxes.Add(box);
-					s.Position = 0;
-					s.SetLength(0);
-					progressBar.Value = (i / _trainX.Width) * 100;
+						statusText.Dispatcher.Invoke(() => statusText.Content = $"Decoding Image [{i+1}/{x.Width}]" );
+						progressBar.Dispatcher.Invoke(() => progressBar.Value = ((double)i / (double)x.Width) * 100);
+						ImagePreProcessor.Expand(x[i], s);
+						var box = statusText.Dispatcher.Invoke(() =>
+						{
+							var b = new ImageBox
+							{
+								ImageName = $"IMG {i} - {y[i]}",
+								ImageSource = new BitmapImage()
+							};
+							b.ImageSource.BeginInit();
+							b.ImageSource.StreamSource = s;
+							b.ImageSource.CacheOption = BitmapCacheOption.OnLoad;
+							b.ImageSource.EndInit();
+							return b;
+						});
+						boxes.Add(box);
+						s.Position = 0;
+						s.SetLength(0);
+					}
 				}
-			}
+			});
 			statusText.Content = StandbyMessage;
 			progressBar.Value = 100;
-			trainingSetDisplay.ItemsSource = boxes;
+			return boxes;
 		}
 
 		private int[] GetLayersArray()
@@ -118,6 +165,32 @@ namespace ChiruApp
 			return l;
 		}
 
+		private ActivationFunction[] GetActivations()
+		{
+			var act = new ActivationFunction[_layers.Count + 2];
+			Func<int, ActivationFunction> getFunc = (i) =>
+			{
+				switch(i)
+				{
+					case 0:
+						return ActivationFunction.ReLu;
+					case 1:
+						return ActivationFunction.TanH;
+					case 2:
+						return ActivationFunction.Sigmoid;
+					default:
+						return ActivationFunction.TanH;
+				}
+			};
+			act[0] = getFunc(inputActivation.SelectedIndex);
+			act[act.Length-1] = getFunc(outputActivation.SelectedIndex);
+			for (int i = 0; i < _layers.Count; i++)
+			{
+				act[i + 1] = getFunc(_layers[i].ActivationFunc);
+			}
+			return act;
+		}
+
 		private async void TrainOnce(object sender, RoutedEventArgs e)
 		{
 			if (_isRunning)
@@ -127,8 +200,12 @@ namespace ChiruApp
 			_isRunning = true;
 			UpdateTrainingButtons();
 			statusText.Content = "Training 1 Iteration...";
-			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX, _trainY, GetLayersArray(), 0.0075, 1, _parameters, Status));
+			double lRate = double.Parse(learningRate.Text);
+			var l = GetLayersArray();
+			var a = GetActivations();
+			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX / 255, _trainY, l, a, lRate, 1, _parameters, Status));
 			statusText.Content = StandbyMessage;
+			progressBar.Value = 100;
 			_isRunning = false;
 			UpdateTrainingButtons();
 		}
@@ -142,18 +219,28 @@ namespace ChiruApp
 			_isRunning = true;
 			UpdateTrainingButtons();
 			statusText.Content = $"Training {iterations.Text} Iterations...";
-			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX, _trainY, GetLayersArray(), 0.0075, int.Parse(iterations.Text), _parameters, Status, WillCancel));
+			double lRate = double.Parse(learningRate.Text);
+			int it = int.Parse(iterations.Text);
+			var l = GetLayersArray();
+			var a = GetActivations();
+			_parameters = await Task.Run(() => DeepNeuralNetwork.Model(_trainX / 255, _trainY, l, a, lRate, it, _parameters, Status, WillCancel));
 			statusText.Content = StandbyMessage;
+			progressBar.Value = 100;
 			_isRunning = false;
 			UpdateTrainingButtons();
 		}
 
 		private void UpdateTrainingButtons()
 		{
-			trainOnce.IsEnabled = !_isRunning;
-			trainAll.IsEnabled = !_isRunning;
+			trainOnce.IsEnabled = !_isRunning && _hasData && _layers.Count > 0;
+			trainAll.IsEnabled = !_isRunning && _hasData && _layers.Count > 0;
+			iterations.IsEnabled = !_isRunning && _hasData && _layers.Count > 0;
+			learningRate.IsEnabled = !_isRunning && _hasData && _layers.Count > 0;
 			stopTraining.IsEnabled = _isRunning;
-			addLayer.IsEnabled = !_isRunning;
+			trainingDataGroup.IsEnabled = !_isRunning;
+			networkShapeGroup.IsEnabled = !_isRunning;
+			networkGroup.IsEnabled = !_isRunning;
+			hyperparameterGroup.IsEnabled = !_isRunning;
 			removeLayer.IsEnabled = !_isRunning;
 		}
 
@@ -172,9 +259,23 @@ namespace ChiruApp
 			return false;
 		}
 
-		private void Status(int iteration, double cost)
+		private async void Status(int iteration, double cost)
 		{
-
+			statusText.Dispatcher.Invoke(() => statusText.Content = $"Training {iteration}/{iterations.Text} | Cost:{cost}");
+			progressBar.Dispatcher.Invoke(() =>progressBar.Value = (iteration / double.Parse(iterations.Text)) * 100);
+			_lossData = _lossData.IsEmpty() ? new double[,] { { cost } }.AsMatrix() : _lossData.AppendColumns(new double[,] { { cost } }.AsMatrix());
+			await Task.Run(() => Graphs.DrawGraph(_lossSurf, _lossData, SKPMColor.PreMultiply(new SKColor(255, 0, 100))));
+			var s = new MemoryStream();
+			_lossSurf.Snapshot().Encode(SKEncodedImageFormat.Png, 100).SaveTo(s);
+			lossGraph.Dispatcher.Invoke(() =>
+			{
+				var b = new BitmapImage();
+				b.BeginInit();
+				b.StreamSource = s;
+				b.CacheOption = BitmapCacheOption.OnLoad;
+				b.EndInit();
+				lossGraph.Source = b;
+			});
 		}
 
 		private void ValidateText(object sender, System.Windows.Input.KeyEventArgs e)
@@ -186,34 +287,80 @@ namespace ChiruApp
 
 		private void LoadNetwork(object sender, RoutedEventArgs e)
 		{
-
+			using (var open = new System.Windows.Forms.OpenFileDialog())
+			{
+				open.Filter = "JSON | *.json";
+				open.DefaultExt = "json";
+				open.Multiselect = false;
+				open.FileOk += (s, c) =>
+				{
+					_parameters = Parameters.FromJSON(File.ReadAllText(open.FileName));
+				};
+				open.ShowDialog();
+			}
+			_layers.Clear();
+			for (int i = 0; i < _parameters.B.Length - 1; i++)
+			{
+				_layers.Add(new Layer
+				{
+					LayerDepth = _parameters.B[i].Height
+				});
+			}
+			_lossData = default;
+			UpdateLayerNames();
 		}
 
 		private void SaveNetwork(object sender, RoutedEventArgs e)
 		{
-
+			using(var save = new System.Windows.Forms.SaveFileDialog())
+			{
+				save.Filter = "JSON | *.json";
+				save.DefaultExt = "json";
+				save.FileOk += (s, c) =>
+				{
+					File.WriteAllText(save.FileName, _parameters.ToJSON());
+				};
+				save.ShowDialog();
+			}
 		}
 
 		private void ResetNetwork(object sender, RoutedEventArgs e)
 		{
-			if (_parameters == null)
-				return;
-			_parameters = new Parameters(2);
+			_parameters = null;
+			_layers.Clear();
+			_layers.Add(new Layer
+			{
+				LayerDepth = 5
+			});
+			_lossData = default;
+			UpdateLayerNames();
 		}
 
 		private void AddLayer(object sender, RoutedEventArgs e)
 		{
 			_layers.Add(new Layer
 			{
-				LayerName = $"Layer {_layers.Count}",
 				LayerDepth = 5
 			});
+			UpdateTrainingButtons();
+			UpdateLayerNames();
 		}
 
 		private void RemoveLayer(object sender, RoutedEventArgs e)
 		{
 			if(layers.SelectedIndex >= 0)
 				_layers.RemoveAt(layers.SelectedIndex);
+			UpdateTrainingButtons();
+			UpdateLayerNames();
+		}
+
+		private void UpdateLayerNames()
+		{
+			for (int i = 0; i < _layers.Count; i++)
+			{
+				_layers[i].LayerName = $"Layer {i}";
+			}
+			layers.UpdateLayout();
 		}
 	}
 }

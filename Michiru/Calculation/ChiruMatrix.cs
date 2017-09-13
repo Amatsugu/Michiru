@@ -12,17 +12,19 @@ namespace Michiru.Calculation
     public struct ChiruMatrix
 	{
 		public double[,] Values { get; }
-		public int Height { get; }
-		public int Width { get; }
+		[JsonIgnore]
+		public int Height => Values.GetLength(0);
+		[JsonIgnore]
+		public int Width => Values.GetLength(1);
+		[JsonIgnore]
 		public ChiruMatrix T => Transpose();
 
+		[JsonIgnore]
 		private static Random _RAND = new Random();
 
 		public ChiruMatrix(double[,] values)
 		{
 			Values = values;
-			Height = values.GetLength(0);
-			Width = values.GetLength(1);
 		}
 
 		public double this[int i, int j]
@@ -178,7 +180,7 @@ namespace Michiru.Calculation
 			return false;
 		}
 
-		public bool IsEmpty() => Height == 0 || Width == 0;
+		public bool IsEmpty() => Values == null || Height == 0 || Width == 0;
 
 
 		/// <summary>
@@ -258,6 +260,27 @@ namespace Michiru.Calculation
 		/// </summary>
 		/// <returns></returns>
 		public ChiruMatrix Abs() => Map(Math.Abs);
+
+		public ChiruMatrix AppendColumns(ChiruMatrix matrix)
+		{
+			if (matrix.Height != Height)
+				throw new Exception("Matricies are not of the same height");
+			var m = new double[Height, Width + matrix.Width];
+			for (int i = 0; i < Height; i++)
+			{
+				for (int j = 0; j < Width + matrix.Width; j++)
+				{
+					if(j >= Width)
+					{
+						m[i, j] = matrix[i, j - Width];
+					}else
+					{
+						m[i, j] = this[i, j];
+					}
+				}
+			}
+			return m.AsMatrix();
+		}
 
 		/// <summary>
 		/// Serializes the matrix to a JSON string

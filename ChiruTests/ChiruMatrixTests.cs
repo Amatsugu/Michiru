@@ -21,7 +21,7 @@ namespace ChiruTests
 		public void Dot()
 		{
 			var r = a / b;
-			Assert.IsTrue(ChiruMath.Equals(r, (new double[] { 14, 14, 14 })));
+			Assert.AreEqual(r, new double[,] { { 14, 14, 14 } }.AsMatrix());
 		}
 
 		[TestMethod]
