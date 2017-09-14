@@ -21,7 +21,7 @@ namespace ChiruApp
 	public partial class MainWindow : Window
 	{
 		private ChiruMatrix _trainX, _testX;
-		private ChiruMatrix _trainY, _testY;
+		private ChiruMatrix _trainY, _testY, _predictY;
 		private Parameters _parameters = null;
 		private bool _willStop = false;
 		private bool _isRunning = false;
@@ -40,16 +40,13 @@ namespace ChiruApp
 				LayerDepth = 5
 			});
 			layers.ItemsSource = _layers;
-			UpdateTrainingButtons();
+			UpdateButtons();
 			//Initialize Diagrams
 			_lossSurf = SKSurface.Create(1680, 720, SKImageInfo.PlatformColorType, SKAlphaType.Opaque);
 			_networkSurf = SKSurface.Create(1680, 720, SKImageInfo.PlatformColorType, SKAlphaType.Opaque);			
 		}
 
-		private void TrainXBrowse(object sender, RoutedEventArgs e)
-		{
-			Browse(d => trainXLocation.Text = d.FileName);
-		}
+		private void TrainXBrowse(object sender, RoutedEventArgs e) => Browse(d => trainXLocation.Dispatcher.Invoke(() => trainXLocation.Text = d.FileName));
 
 		private void Browse(Action<System.Windows.Forms.OpenFileDialog> action)
 		{
@@ -65,20 +62,11 @@ namespace ChiruApp
 			}
 		}
 
-		private void TrainYBrowse(object sender, RoutedEventArgs e)
-		{
-			Browse(d => trainYLocation.Text = d.FileName);
-		}
+		private void TrainYBrowse(object sender, RoutedEventArgs e) => Browse(d => trainYLocation.Dispatcher.Invoke(() => trainYLocation.Text = d.FileName));
 
-		private void TestXBrowse(object sender, RoutedEventArgs e)
-		{
-			Browse(d => testXLocation.Text = d.FileName);
-		}
+		private void TestXBrowse(object sender, RoutedEventArgs e) => Browse(d => testXLocation.Dispatcher.Invoke(() => testXLocation.Text = d.FileName));
 
-		private void TestYBrowse(object sender, RoutedEventArgs e)
-		{
-			Browse(d => testYLocation.Text = d.FileName);
-		}
+		private void TestYBrowse(object sender, RoutedEventArgs e) => Browse(d => testYLocation.Dispatcher.Invoke(() => testYLocation.Text = d.FileName));
 
 		private async void LoadTrainDataClick(object sender, RoutedEventArgs e)
 		{
@@ -90,7 +78,7 @@ namespace ChiruApp
 			statusText.Content = StandbyMessage;
 			_hasData = true;
 			trainingSetDisplay.ItemsSource = await UpdateDataDisplay(_trainX, _trainY);
-			UpdateTrainingButtons();
+			UpdateButtons();
 		}
 
 		private async void LoadTestDataClick(object sender, RoutedEventArgs e)
@@ -102,8 +90,9 @@ namespace ChiruApp
 			progressBar.Value = 100;
 			statusText.Content = StandbyMessage;
 			_hasData = true;
-			testingSetDisplay.ItemsSource = await UpdateDataDisplay(_testX, _testY);
-			UpdateTrainingButtons();
+			testingSetDisplay.ItemsSource = await UpdateDataDisplay(_testX, _testY, true);
+			UpdateButtons();
+			dataSetShape.Content = _testX.Shape.ToString();
 		}
 
 		private (ChiruMatrix X, ChiruMatrix Y) LoadData(string xL, string yL)
@@ -117,7 +106,7 @@ namespace ChiruApp
 			return (X, Y);
 		}
 
-		private async Task<ObservableCollection<ImageBox>> UpdateDataDisplay(ChiruMatrix x, ChiruMatrix y)
+		private async Task<ObservableCollection<ImageBox>> UpdateDataDisplay(ChiruMatrix x, ChiruMatrix y, bool showPredictResult = false)
 		{
 			inputSizeLabel.Content = $"Input Layer: {x.Height}";
 			outputSizeLabel.Content = $"Ouput Layer: {y.Height}";
@@ -138,6 +127,10 @@ namespace ChiruApp
 								ImageName = $"IMG {i} - {y[i]}",
 								ImageSource = new BitmapImage()
 							};
+							if(showPredictResult)
+							{
+								b.ImageName = $"{b.ImageName}:{(_predictY.IsEmpty() ? "[-]" : _predictY[i].ToString())}";
+							}
 							b.ImageSource.BeginInit();
 							b.ImageSource.StreamSource = s;
 							b.ImageSource.CacheOption = BitmapCacheOption.OnLoad;
@@ -198,7 +191,7 @@ namespace ChiruApp
 			if (_trainX.IsEmpty() || _trainY.IsEmpty())
 				return;
 			_isRunning = true;
-			UpdateTrainingButtons();
+			UpdateButtons();
 			statusText.Content = "Training 1 Iteration...";
 			double lRate = double.Parse(learningRate.Text);
 			var l = GetLayersArray();
@@ -207,7 +200,7 @@ namespace ChiruApp
 			statusText.Content = StandbyMessage;
 			progressBar.Value = 100;
 			_isRunning = false;
-			UpdateTrainingButtons();
+			UpdateButtons();
 		}
 
 		private async void TrainAll(object sender, RoutedEventArgs e)
@@ -217,7 +210,7 @@ namespace ChiruApp
 			if (_trainX.IsEmpty() || _trainY.IsEmpty())
 				return;
 			_isRunning = true;
-			UpdateTrainingButtons();
+			UpdateButtons();
 			statusText.Content = $"Training {iterations.Text} Iterations...";
 			double lRate = double.Parse(learningRate.Text);
 			int it = int.Parse(iterations.Text);
@@ -227,10 +220,10 @@ namespace ChiruApp
 			statusText.Content = StandbyMessage;
 			progressBar.Value = 100;
 			_isRunning = false;
-			UpdateTrainingButtons();
+			UpdateButtons();
 		}
 
-		private void UpdateTrainingButtons()
+		private void UpdateButtons()
 		{
 			trainOnce.IsEnabled = !_isRunning && _hasData && _layers.Count > 0;
 			trainAll.IsEnabled = !_isRunning && _hasData && _layers.Count > 0;
@@ -241,12 +234,14 @@ namespace ChiruApp
 			networkShapeGroup.IsEnabled = !_isRunning;
 			networkGroup.IsEnabled = !_isRunning;
 			hyperparameterGroup.IsEnabled = !_isRunning;
+			predictionGroup.IsEnabled = !(_parameters == null);
 			removeLayer.IsEnabled = !_isRunning;
 		}
 
 		private void StopTraining(object sender, RoutedEventArgs e)
 		{
 			_willStop = true;
+			statusText.Content = "Stopping...";
 		}
 
 		private bool WillCancel()
@@ -298,6 +293,8 @@ namespace ChiruApp
 				};
 				open.ShowDialog();
 			}
+			if (_parameters == null)
+				return;
 			_layers.Clear();
 			for (int i = 0; i < _parameters.B.Length - 1; i++)
 			{
@@ -308,11 +305,12 @@ namespace ChiruApp
 			}
 			_lossData = default;
 			UpdateLayerNames();
+			UpdateButtons();
 		}
 
-		private void SaveNetwork(object sender, RoutedEventArgs e)
+		private  void SaveNetwork(object sender, RoutedEventArgs e)
 		{
-			using(var save = new System.Windows.Forms.SaveFileDialog())
+			using (var save = new System.Windows.Forms.SaveFileDialog())
 			{
 				save.Filter = "JSON | *.json";
 				save.DefaultExt = "json";
@@ -334,6 +332,28 @@ namespace ChiruApp
 			});
 			_lossData = default;
 			UpdateLayerNames();
+			UpdateButtons();
+		}
+
+		private async void PredictSelected(object sender, RoutedEventArgs e)
+		{
+			var a = GetActivations();
+			var p = testingSetDisplay.SelectedIndex;
+			if (_predictY.IsEmpty())
+				_predictY = ChiruMatrix.Zeros(_testY.Height, _testY.Width);
+			_predictY[p] = await Task.Run(() => DeepNeuralNetwork.Predict(_parameters, _testX[p], a));
+		}
+
+		private async void PredictAll(object sender, RoutedEventArgs e)
+		{
+			var a = GetActivations();
+			_predictY = await Task.Run(() => DeepNeuralNetwork.Predict(_parameters, _testX, a));
+			UpdatePredictStats();
+		}
+
+		private void UpdatePredictStats()
+		{
+			predictAccuracy.Content = _predictY.IsEmpty() ? "No Data" :  _predictY.ErrorWith(_testY).ToString();
 		}
 
 		private void AddLayer(object sender, RoutedEventArgs e)
@@ -342,7 +362,7 @@ namespace ChiruApp
 			{
 				LayerDepth = 5
 			});
-			UpdateTrainingButtons();
+			UpdateButtons();
 			UpdateLayerNames();
 		}
 
@@ -350,7 +370,7 @@ namespace ChiruApp
 		{
 			if(layers.SelectedIndex >= 0)
 				_layers.RemoveAt(layers.SelectedIndex);
-			UpdateTrainingButtons();
+			UpdateButtons();
 			UpdateLayerNames();
 		}
 

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Michiru.Calculation
 {
-    public struct ChiruMatrix
+	public struct ChiruMatrix
 	{
 		public double[,] Values { get; }
 		[JsonIgnore]
@@ -18,25 +18,17 @@ namespace Michiru.Calculation
 		public int Width => Values.GetLength(1);
 		[JsonIgnore]
 		public ChiruMatrix T => Transpose();
+		public ChiruMatrix Shape => new double[,] { { Height, Width }}.AsMatrix();
 
 		[JsonIgnore]
 		private static Random _RAND = new Random();
 
-		public ChiruMatrix(double[,] values)
-		{
-			Values = values;
-		}
+		public ChiruMatrix(double[,] values) => Values = values;
 
 		public double this[int i, int j]
 		{
-			get
-			{
-				return Values[i, j];
-			}
-			set
-			{
-				Values[i, j] = value;
-			}
+			get => Values[i, j];
+			set => Values[i, j] = value;
 		}
 
 		public ChiruMatrix this[int j]
@@ -45,7 +37,7 @@ namespace Michiru.Calculation
 			{
 				double[,] o = new double[Height,1];
 				for (int i = 0; i < Height; i++)
-					o[i,0] = Values[i, j];
+					o[i, 0] = Values[i, j];
 				return o.AsMatrix();
 			}
 			set
@@ -312,10 +304,7 @@ namespace Michiru.Calculation
 			return sb.ToString();
 		}
 
-		public bool Equals(ChiruMatrix obj)
-		{
-			return ChiruMath.Equals(Values, obj.Values);
-		}
+		public bool Equals(ChiruMatrix obj) => ChiruMath.Equals(Values, obj.Values);
 
 		public override bool Equals(object obj)
 		{
@@ -327,10 +316,7 @@ namespace Michiru.Calculation
 			return Equals((ChiruMatrix)obj);
 		}
 
-		public override int GetHashCode()
-		{
-			return Values.GetHashCode();
-		}
+		public override int GetHashCode() => Values.GetHashCode();
 
 	}
 }
