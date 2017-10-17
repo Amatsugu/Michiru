@@ -18,7 +18,8 @@ namespace Michiru.Calculation
 		public int Width => Values.GetLength(1);
 		[JsonIgnore]
 		public ChiruMatrix T => Transpose();
-		public ChiruMatrix Shape => new double[,] { { Height, Width }}.AsMatrix();
+        [JsonIgnore]
+        public ChiruMatrix Shape => new double[,] { { Height, Width }}.AsMatrix();
 
 		[JsonIgnore]
 		private static Random _RAND = new Random();
