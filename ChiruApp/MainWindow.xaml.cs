@@ -92,6 +92,10 @@ namespace ChiruApp
 			_hasData = true;
 			testingSetDisplay.ItemsSource = await UpdateDataDisplay(_testX, _testY, true);
 			UpdateButtons();
+<<<<<<< HEAD
+=======
+			dataSetShape.Content = _testX.Shape.ToString();
+>>>>>>> 6cbe5af4361e7b2dc77ff2fd3fa209ff05ff6085
 		}
 
 		private (ChiruMatrix X, ChiruMatrix Y) LoadData(string xL, string yL)
@@ -292,6 +296,8 @@ namespace ChiruApp
 				};
 				open.ShowDialog();
 			}
+			if (_parameters == null)
+				return;
 			_layers.Clear();
 			for (int i = 0; i < _parameters.B.Length - 1; i++)
 			{
@@ -345,6 +351,15 @@ namespace ChiruApp
 		{
 			var a = GetActivations();
 			_predictY = await Task.Run(() => DeepNeuralNetwork.Predict(_parameters, _testX, a));
+<<<<<<< HEAD
+=======
+			UpdatePredictStats();
+		}
+
+		private void UpdatePredictStats()
+		{
+			predictAccuracy.Content = _predictY.IsEmpty() ? "No Data" :  _predictY.ErrorWith(_testY).ToString();
+>>>>>>> 6cbe5af4361e7b2dc77ff2fd3fa209ff05ff6085
 		}
 
 		private void AddLayer(object sender, RoutedEventArgs e)
