@@ -13,13 +13,15 @@ namespace ChiruApp
 	{
 		public static void DrawGraph(SKSurface surf, ChiruMatrix data, SKPMColor lineColor)
 		{
-			double yMax = 0;
+			double yMax = double.NegativeInfinity, yMin = double.PositiveInfinity;
 			for(int j = 0; j < data.Width; j++)
 			{
 				if (yMax < data[0, j])
 					yMax = data[0, j];
+				if (yMin > data[0, j])
+					yMin = data[0, j];
 			}
-			DrawGraph(surf, data, 0, data.Width, 0, yMax, lineColor);
+			DrawGraph(surf, data, 0, data.Width, yMin, yMax, lineColor);
 		}
 
 		public static void DrawGraph(SKSurface surf, ChiruMatrix data, double xMin, double xMax, double yMin, double yMax, SKPMColor lineColor, double padding = 10)
@@ -46,8 +48,8 @@ namespace ChiruApp
 			};
 			for (int j = 0; j < data.Width; j++)
 			{
-				pX = (int)(padding + ((j / xMax) * (w - (2 * padding))));
-				pY = (int)(padding + ((data[0,j] / yMax) * (h - (2 * padding))));
+				pX = (int)(padding + (Math.Max(0, (j - xMin) / (xMax - xMin)) * (w - (2 * padding))));
+				pY = (int)(padding + (Math.Max(0, (data[0,j] - yMin) / (yMax - yMin)) * (h - (2 * padding))));
 				canvas.DrawCircle(pX, h - pY, 5, paint);
 				if (j > 0)
 					canvas.DrawLine(lpX, h - lpY, pX, h - pY, paint);
