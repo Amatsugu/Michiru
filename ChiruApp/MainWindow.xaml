@@ -289,6 +289,12 @@
 							</GroupBox>
 
 							<GroupBox Header="Stats" Grid.Row="1" Grid.ColumnSpan="2">
+								<StackPanel>
+									<Label Content="Data Set: No Data" Name="dataSetShape"/>
+									<Label Content="Accuracy: No Data" Name="predictAccuracy"/>
+									<Label Content="Positive Accuracy: No Data" Name="predictProAccuracy"/>
+									<Label Content="Negative Accuracy: No Data" Name="predictNegAccuracy"/>
+								</StackPanel>
 							</GroupBox>
 						</Grid>
 					</TabItem>

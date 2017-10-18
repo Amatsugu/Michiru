@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Michiru.Calculation
 {
-    public struct ChiruMatrix
+	public struct ChiruMatrix
 	{
 		public double[,] Values { get; }
 		[JsonIgnore]
@@ -18,6 +18,8 @@ namespace Michiru.Calculation
 		public int Width => Values.GetLength(1);
 		[JsonIgnore]
 		public ChiruMatrix T => Transpose();
+        [JsonIgnore]
+        public ChiruMatrix Shape => new double[,] { { Height, Width }}.AsMatrix();
 
 		[JsonIgnore]
 		private static Random _RAND = new Random();

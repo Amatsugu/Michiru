@@ -1,4 +1,4 @@
-﻿using Michiru.Calculation;
+using Michiru.Calculation;
 using System;
 using System.Collections.Generic;
 using System.IO;
