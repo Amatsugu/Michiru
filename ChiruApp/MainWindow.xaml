@@ -75,8 +75,8 @@
 													<Label Content="Input Layer: No Data" Name="inputSizeLabel" VerticalAlignment="Center"/>
 													<ComboBox Grid.Column="1" Margin="5 1 1 0" Padding="5 5 5 5" Name="inputActivation">
 														<ComboBoxItem Content="ReLu" />
-														<ComboBoxItem Content="TanH" IsSelected="True"/>
-														<ComboBoxItem Content="Sigmoid"/>
+														<ComboBoxItem Content="TanH"/>
+														<ComboBoxItem Content="Sigmoid" IsSelected="True"/>
 													</ComboBox>
 													<Label Content="Output Layer: No Data" Name="outputSizeLabel" Grid.Row="1" VerticalAlignment="Center"/>
 													<ComboBox Grid.Column="1" Grid.Row="1" Margin="5 1 1 0" Padding="5 5 5 5" Name="outputActivation">

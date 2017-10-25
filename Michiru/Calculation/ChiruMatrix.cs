@@ -6,11 +6,13 @@ using System.Linq.Expressions;
 using System.Text;
 using Michiru.Calculation;
 using Newtonsoft.Json;
+using ZeroFormatter;
 
 namespace Michiru.Calculation
 {
 	public struct ChiruMatrix
 	{
+		[Index(0)]
 		public double[,] Values { get; }
 		[JsonIgnore]
 		public int Height => Values.GetLength(0);
@@ -23,6 +25,7 @@ namespace Michiru.Calculation
 
 		[JsonIgnore]
 		private static Random _RAND = new Random();
+		
 
 		public ChiruMatrix(double[,] values) => Values = values;
 

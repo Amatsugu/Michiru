@@ -143,6 +143,7 @@ namespace Michiru.Neural
 			}
 			return parameters;
 		}
+
 		/// <summary>
 		/// Create a Network Model and train it
 		/// </summary>
@@ -195,6 +196,7 @@ namespace Michiru.Neural
 		/// <param name="X">Data set to make predictions based on</param>
 		/// <returns>Matrix of the resulting predictions</returns>
 		public static ChiruMatrix Predict(Parameters parameters, ChiruMatrix X, ActivationFunction[] activations) => ModelForward(X, parameters, activations).AL.Map(x => x > .5 ? 1 : 0);
+		public static ChiruMatrix Predict(Parameters parameters, ChiruMatrix X, ActivationFunction[] activations, Func<double, double> mapFunction) => ModelForward(X, parameters, activations).AL.Map(mapFunction);
 
 		public static double ComputeCost(ChiruMatrix AL, ChiruMatrix Y)
 		{
