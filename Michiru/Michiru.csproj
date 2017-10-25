@@ -21,4 +21,6 @@
     <PackageReference Include="ZeroFormatter" Version="1.6.4" />
   </ItemGroup>
 
+  <Import Project="..\Michiru.Utils\Michiru.Utils.projitems" Label="Shared" />
+
 </Project>

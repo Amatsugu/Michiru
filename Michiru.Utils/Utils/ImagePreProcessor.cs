@@ -1,14 +1,11 @@
 using SkiaSharp;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Michiru.Calculation;
 
-namespace Utils
+namespace Michiru.Utils
 {
     public static class ImagePreProcessor
     {
@@ -50,6 +47,25 @@ namespace Utils
 			}
 		}
 
+		public static void Resize(string inDir, string outDir, double scaleFactor, Func<int, string, string> nameFunc = null)
+		{
+			if (nameFunc == null)
+				nameFunc = (i, n) => n;
+			var files = Directory.EnumerateFiles(inDir, "*", SearchOption.TopDirectoryOnly);
+			foreach(var f in files)
+			{
+				using (var img = SKBitmap.Decode(f))
+				{
+					img.Resize(new SKImageInfo
+					{
+						Height = (int)(img.Height * scaleFactor),
+						Width = (int)(img.Width * scaleFactor)
+					}, SKBitmapResizeMethod.Hamming);
+
+				}
+			}
+		}
+
 		public static (ChiruMatrix x, ChiruMatrix y) Flatten(string dir, string zeroPattern)
 		{
 			double[,] x = null, y;
@@ -82,12 +98,12 @@ namespace Utils
 			int c = 0;
 			for (int i = 0; i < flatColors.Height; i += 3)
 			{
-				colors[c++] = new SKColor((byte)flatColors[i,0], (byte)flatColors[i + 1, 0], (byte)flatColors[i + 2, 0]);
+				colors[c++] = new SKColor((byte)flatColors[i, 0], (byte)flatColors[i + 1, 0], (byte)flatColors[i + 2, 0]);
 			}
 			var ctable = new SKColorTable(colors);
 			var img = new SKBitmap(new SKImageInfo(100, 100), ctable);
 			var image = SKImage.FromBitmap(img);
 			image.Encode().SaveTo(dest);
 		}
-    }
+	}
 }
