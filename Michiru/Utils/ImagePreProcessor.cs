@@ -1,4 +1,4 @@
-﻿using SkiaSharp;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -76,18 +76,18 @@ namespace Michiru.Utils
 			return (x.AsMatrix(), y.AsMatrix());
 		}
 
-		public static void Expand(double[] flatColors, Stream dest)
+		public static void Expand(ChiruMatrix flatColors, Stream dest)
 		{
-			var colors = new SKColor[flatColors.Length / 3];
+			var colors = new SKColor[flatColors.Height / 3];
 			int c = 0;
-			for (int i = 0; i < flatColors.Length; i += 3)
+			for (int i = 0; i < flatColors.Height; i += 3)
 			{
-				colors[c++] = new SKColor((byte)flatColors[i], (byte)flatColors[i + 1], (byte)flatColors[i + 2]);
+				colors[c++] = new SKColor((byte)flatColors[i, 0], (byte)flatColors[i + 1, 0], (byte)flatColors[i + 2, 0]);
 			}
 			var ctable = new SKColorTable(colors);
 			var img = new SKBitmap(new SKImageInfo(100, 100), ctable);
 			var image = SKImage.FromBitmap(img);
 			image.Encode().SaveTo(dest);
 		}
-    }
+	}
 }
