@@ -24,8 +24,7 @@ namespace ClassificationApp
 				ActivationFunction.Sigmoid
 			};
 			ChiruMath.PARALLEL = false;
-			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 5, 2 }, activations, 0.002, 50000, null, (i, c) =>
-			var lastCost = double.PositiveInfinity;
+			//var lastCost = double.PositiveInfinity;
 			var parameters = Parameters.FromJSON(File.ReadAllText("p.json"));
 			/*var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 6, 2 }, activations, 1.0, 30000, null, (i, c) =>
 			{
@@ -37,11 +36,6 @@ namespace ClassificationApp
 			});*/
 			File.WriteAllText("p.json", parameters.ToJSON());
 			var pY = DeepNeuralNetwork.Predict(parameters, trainX, activations);
-			bitmap = new SKBitmap(SIZE, SIZE);
-			canvas = new SKCanvas(bitmap);
-			DrawData(trainX, pY, canvas);
-			Save(bitmap, "predict.png");
-			Console.ReadLine();
 			SaveAsImage(trainX, pY, "trainPredict.png");
 			(ChiruMatrix testX, ChiruMatrix testY) = GenerateData(10000);
 			var pTY = DeepNeuralNetwork.Predict(parameters, testX, activations, y => y);
@@ -71,7 +65,6 @@ namespace ClassificationApp
 		public static Random rand = new Random(1);
 		static (ChiruMatrix X, ChiruMatrix Y) GenerateData(int m)
 		{
-			Random rand = new Random(2);
 			double[,] X = new double[2, m], Y = new double[1, m];
 			for (int n = 0; n < m; n++)
 			{
