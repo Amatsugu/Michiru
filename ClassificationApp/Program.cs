@@ -25,7 +25,7 @@ namespace ClassificationApp
 				ActivationFunction.Sigmoid
 			};
 			ChiruMath.PARALLEL = false;
-			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 5, 2 }, activations, 0.001, 10000, null, (i, c) =>
+			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 5, 2 }, activations, 0.002, 50000, null, (i, c) =>
 			{
 				if(i % (10000 * .1) == 0)
 					Console.WriteLine($"[{i}] : {c}");
@@ -35,6 +35,7 @@ namespace ClassificationApp
 			canvas = new SKCanvas(bitmap);
 			DrawData(trainX, pY, canvas);
 			Save(bitmap, "predict.png");
+			Console.ReadLine();
 		}
 
 		static void Save(SKBitmap bitmap, string name)
@@ -48,7 +49,7 @@ namespace ClassificationApp
 
 		static (ChiruMatrix X, ChiruMatrix Y) GenerateData(int m)
 		{
-			Random rand = new Random();
+			Random rand = new Random(2);
 			double[,] X = new double[2, m], Y = new double[1, m];
 			for (int n = 0; n < 1000; n++)
 			{
