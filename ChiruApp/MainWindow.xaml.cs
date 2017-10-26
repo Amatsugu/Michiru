@@ -172,7 +172,7 @@ namespace ChiruApp
 					case 2:
 						return ActivationFunction.Sigmoid;
 					default:
-						return ActivationFunction.TanH;
+						return ActivationFunction.Sigmoid;
 				}
 			};
 			act[0] = getFunc(inputActivation.SelectedIndex);

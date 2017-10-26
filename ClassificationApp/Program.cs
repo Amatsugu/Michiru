@@ -86,12 +86,12 @@ namespace ClassificationApp
 						Y[0, n] = 1;
 				}
 			}
-
 			return (X.AsMatrix(), Y.AsMatrix());
 		}
 
 		static void DrawData(ChiruMatrix X, ChiruMatrix Y, SKCanvas canvas)
 		{
+			canvas.Clear(new SKColor(255, 255, 255));
 			SKPaint paintA = new SKPaint
 			{
 				Color = new SKColor(255, 0, 0)
@@ -104,12 +104,12 @@ namespace ClassificationApp
 				double x = X[0,i] * SIZE, y = X[1,i] * SIZE;
 				if(Y[0,i] >= .5)
 				{
-					paintA.Color = new SKColor((byte)(255 * ((Y[0,i] + 1)/2)), 0, 0);
+					paintA.Color = new SKColor(255, (byte)(255 * ((Y[0, i] - .5) * 2)), 0);
 					canvas.DrawCircle((int)x, (int)y, 3, paintA);
 				}
 				else
 				{
-					paintA.Color = new SKColor(0, 0, (byte)(255 * ((Y[0, i] + 1) / 2)));
+					paintA.Color = new SKColor(255, 0, (byte)(255 * ((Y[0, i] + .5) * 2)));
 					canvas.DrawCircle((int)x, (int)y, 3, paintB);
 				}
 			}
