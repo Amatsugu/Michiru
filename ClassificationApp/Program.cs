@@ -14,30 +14,33 @@ namespace ClassificationApp
 
 		static void Main(string[] args)
 		{
-			(ChiruMatrix trainX, ChiruMatrix trainY) = GenerateData(1000);
+			(ChiruMatrix trainX, ChiruMatrix trainY) = GenerateData(2000);
 			SaveAsImage(trainX, trainY, "train.png");
 			var activations = new ActivationFunction[]
 			{
 				ActivationFunction.Sigmoid,
 				ActivationFunction.Sigmoid,
 				ActivationFunction.Sigmoid,
+				ActivationFunction.Sigmoid,
 				ActivationFunction.Sigmoid
 			};
 			ChiruMath.PARALLEL = false;
-			//var lastCost = double.PositiveInfinity;
-			var parameters = Parameters.FromJSON(File.ReadAllText("p.json"));
-			/*var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 6, 2 }, activations, 1.0, 30000, null, (i, c) =>
+			var lastCost = double.PositiveInfinity;
+			//var parameters = Parameters.FromJSON(File.ReadAllText("p.json"));
+			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 8, 6, 2 }, activations, 2.2, 15000, null, (i, c) =>
 			{
 				if (lastCost < c)
-					Console.WriteLine("Learning Rate might be too high");
+					Console.WriteLine($"[{i}] Learning Rate might be too high");
+				if (double.IsNaN(c))
+					Console.WriteLine($"[{i}] NaN");
 				lastCost = c;
 				if (i % (10000 * .1) == 0)
 					Console.WriteLine($"[{i}] : {c}");
-			});*/
+			});
 			File.WriteAllText("p.json", parameters.ToJSON());
-			var pY = DeepNeuralNetwork.Predict(parameters, trainX, activations);
-			SaveAsImage(trainX, pY, "trainPredict.png");
-			(ChiruMatrix testX, ChiruMatrix testY) = GenerateData(10000);
+			//var pY = DeepNeuralNetwork.Predict(parameters, trainX, activations, y => y);
+			//SaveAsImage(trainX, pY, "trainPredict.png");
+			(ChiruMatrix testX, ChiruMatrix testY) = GenerateData(50000);
 			var pTY = DeepNeuralNetwork.Predict(parameters, testX, activations, y => y);
 			SaveAsImage(testX, pTY, "testPredict.png");
 			SaveAsImage(testX, testY, "test.png");
@@ -62,7 +65,7 @@ namespace ClassificationApp
 			}
 		}
 
-		public static Random rand = new Random(1);
+		public static Random rand = new Random();
 		static (ChiruMatrix X, ChiruMatrix Y) GenerateData(int m)
 		{
 			double[,] X = new double[2, m], Y = new double[1, m];
@@ -70,20 +73,24 @@ namespace ClassificationApp
 			{
 				X[0, n] = rand.NextDouble();
 				X[1, n] = rand.NextDouble();
-				if (X[0, n] >= 0.5)
+				var d = Math.Sqrt(Math.Pow(X[0, n] - 0.5, 2) + Math.Pow(X[1, n] - 0.5, 2));
+				if (d >= 0.5)
 				{
 
-					if (X[1, n] <= 0.5)
+					//if (X[1, n] <= 0.5)
+					//	Y[0, n] = 1;
+					//else
 						Y[0, n] = 1;
-					else
-						Y[0, n] = 0;
 				}
-				else
+				else if(d <= .25)
 				{
-					if (X[1, n] <= 0.5)
-						Y[0, n] = 0;
-					else
+					//if (X[1, n] <= 0.5)
+					//	Y[0, n] = 0;
+					//else
 						Y[0, n] = 1;
+				}else
+				{
+					Y[0, n] = 0;
 				}
 			}
 			return (X.AsMatrix(), Y.AsMatrix());
@@ -104,12 +111,12 @@ namespace ClassificationApp
 				double x = X[0,i] * SIZE, y = X[1,i] * SIZE;
 				if(Y[0,i] >= .5)
 				{
-					paintA.Color = new SKColor(255, (byte)(255 * ((Y[0, i] - .5) * 2)), 0);
+					paintA.Color = new SKColor((byte)(255 * (1-((Y[0, i] - .5) * 2))), (byte)(255 * ((Y[0, i] - .5) * 2)), 0);
 					canvas.DrawCircle((int)x, (int)y, 3, paintA);
 				}
 				else
 				{
-					paintA.Color = new SKColor(255, 0, (byte)(255 * ((Y[0, i] + .5) * 2)));
+					paintB.Color = new SKColor((byte)(255 * ((Y[0, i]) * 2)), 0, (byte)(255 * (1 - ((Y[0, i]) * 2))));
 					canvas.DrawCircle((int)x, (int)y, 3, paintB);
 				}
 			}
