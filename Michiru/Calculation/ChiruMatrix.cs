@@ -81,7 +81,7 @@ namespace Michiru.Calculation
 		/// <returns></returns>
 		public static ChiruMatrix Random(int h, int w)
 		{
-			var m = new ChiruMatrix(new double[h, w]);
+			var m = new double[h, w];
 			for (int i = 0; i <  h; i++)
 			{
 				for (int j = 0; j < w; j++)
@@ -89,7 +89,7 @@ namespace Michiru.Calculation
 					m[i, j] = _RAND.NextDouble();
 				}
 			}
-			return m;
+			return m.AsMatrix();
 		}
 
 		//Copy
