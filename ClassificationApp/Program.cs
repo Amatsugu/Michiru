@@ -27,19 +27,21 @@ namespace ClassificationApp
 			ChiruMath.PARALLEL = false;
 			var lastCost = double.PositiveInfinity;
 			//var parameters = Parameters.FromJSON(File.ReadAllText("p.json"));
-			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 8, 6, 2 }, activations, 2.2, 15000, null, (i, c) =>
+			var iterations = 5000;
+			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 4, 4, 2 }, activations, 0.2, iterations, null, (i, c) =>
 			{
 				if (lastCost < c)
 					Console.WriteLine($"[{i}] Learning Rate might be too high");
 				if (double.IsNaN(c))
 					Console.WriteLine($"[{i}] NaN");
 				lastCost = c;
-				if (i % (10000 * .1) == 0)
+				if (i % (iterations * .1) == 0)
 					Console.WriteLine($"[{i}] : {c}");
 			});
-			File.WriteAllText("p.json", parameters.ToJSON());
-			//var pY = DeepNeuralNetwork.Predict(parameters, trainX, activations, y => y);
-			//SaveAsImage(trainX, pY, "trainPredict.png");
+			Console.WriteLine("Done!");
+			File.WriteAllText("netwok.json", parameters.ToJSON());
+			var pY = DeepNeuralNetwork.Predict(parameters, trainX, activations, y => y);
+			SaveAsImage(trainX, pY, "trainPredict.png");
 			(ChiruMatrix testX, ChiruMatrix testY) = GenerateData(50000);
 			var pTY = DeepNeuralNetwork.Predict(parameters, testX, activations, y => y);
 			SaveAsImage(testX, pTY, "testPredict.png");
@@ -73,22 +75,12 @@ namespace ClassificationApp
 			{
 				X[0, n] = rand.NextDouble();
 				X[1, n] = rand.NextDouble();
-				var d = Math.Sqrt(Math.Pow(X[0, n] - 0.5, 2) + Math.Pow(X[1, n] - 0.5, 2));
-				if (d >= 0.5)
+				if (X[0, n] + X[1, n] > 1)
 				{
+					Y[0, n] = 1;
 
-					//if (X[1, n] <= 0.5)
-					//	Y[0, n] = 1;
-					//else
-						Y[0, n] = 1;
 				}
-				else if(d <= .25)
-				{
-					//if (X[1, n] <= 0.5)
-					//	Y[0, n] = 0;
-					//else
-						Y[0, n] = 1;
-				}else
+				else
 				{
 					Y[0, n] = 0;
 				}
