@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Michiru", "Michiru\Michiru.csproj", "{FD553768-6EF2-41CD-8683-D06D39837B5A}"
 EndProject
@@ -12,6 +12,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassificationApp", "ClassificationApp\ClassificationApp.csproj", "{A6AB7F8A-A96F-46AE-8AA2-4D61183C99A0}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Michiru.Utils", "Michiru.Utils\Michiru.Utils.shproj", "{5A6C8337-A8EF-4811-845B-49016389D943}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Colorize", "Colorize\Colorize.csproj", "{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogisticRegessionTest", "LogisticRegessionTest\LogisticRegessionTest.csproj", "{84FEE883-0693-4276-86DF-52BF8C3617AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FD553768-6EF2-41CD-8683-D06D39837B5A} = {FD553768-6EF2-41CD-8683-D06D39837B5A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -39,6 +46,14 @@ Global
 		{A6AB7F8A-A96F-46AE-8AA2-4D61183C99A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6AB7F8A-A96F-46AE-8AA2-4D61183C99A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6AB7F8A-A96F-46AE-8AA2-4D61183C99A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84FEE883-0693-4276-86DF-52BF8C3617AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84FEE883-0693-4276-86DF-52BF8C3617AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84FEE883-0693-4276-86DF-52BF8C3617AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84FEE883-0693-4276-86DF-52BF8C3617AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

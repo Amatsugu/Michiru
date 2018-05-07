@@ -1,0 +1,1 @@
+dotnet bin\Release\netcoreapp2.0\Colorize.dll
