@@ -28,7 +28,7 @@ namespace ClassificationApp
 			var lastCost = double.PositiveInfinity;
 			//var parameters = Parameters.FromJSON(File.ReadAllText("p.json"));
 			var iterations = 5000;
-			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 4, 4, 2 }, activations, 0.2, iterations, null, (i, c) =>
+			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 16, 4, 2 }, activations, 2.4, iterations, null, (i, c) =>
 			{
 				if (lastCost < c)
 					Console.WriteLine($"[{i}] Learning Rate might be too high");
@@ -73,9 +73,9 @@ namespace ClassificationApp
 			double[,] X = new double[2, m], Y = new double[1, m];
 			for (int n = 0; n < m; n++)
 			{
-				X[0, n] = rand.NextDouble();
-				X[1, n] = rand.NextDouble();
-				if (X[0, n] + X[1, n] > 1)
+				var x = X[0, n] = rand.NextDouble();
+				var y = X[1, n] = rand.NextDouble();
+				if (y >= x*x*x)
 				{
 					Y[0, n] = 1;
 
