@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChiruApp\ChiruApp.csproj" />
+    <ProjectReference Include="..\Michiru\Michiru.csproj" />
   </ItemGroup>
 
 </Project>

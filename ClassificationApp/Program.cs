@@ -14,6 +14,7 @@ namespace ClassificationApp
 
 		static void Main(string[] args)
 		{
+			Console.WriteLine("Generating Data set");
 			(ChiruMatrix trainX, ChiruMatrix trainY) = GenerateData(2000);
 			SaveAsImage(trainX, trainY, "train.png");
 			var activations = new ActivationFunction[]
@@ -26,8 +27,8 @@ namespace ClassificationApp
 			};
 			ChiruMath.PARALLEL = false;
 			var lastCost = double.PositiveInfinity;
-			//var parameters = Parameters.FromJSON(File.ReadAllText("p.json"));
 			var iterations = 5000;
+			Console.WriteLine("Training:");
 			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 16, 4, 2 }, activations, 2.4, iterations, null, (i, c) =>
 			{
 				if (lastCost < c)
@@ -78,7 +79,6 @@ namespace ClassificationApp
 				if (y >= x*x*x)
 				{
 					Y[0, n] = 1;
-
 				}
 				else
 				{
