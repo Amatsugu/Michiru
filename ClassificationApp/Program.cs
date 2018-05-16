@@ -55,12 +55,11 @@ namespace ClassificationApp
 			double[,] X = new double[2, m], Y = new double[1, m];
 			for (int n = 0; n < m; n++)
 			{
-				X[0, n] = rand.NextDouble();
-				X[1, n] = rand.NextDouble();
-				if (X[0, n] + X[1, n] > 1)
+				var x = X[0, n] = rand.NextDouble();
+				var y = X[1, n] = rand.NextDouble();
+				if (y >= x*x*x)
 				{
 					Y[0, n] = 1;
-
 				}
 				else
 				{

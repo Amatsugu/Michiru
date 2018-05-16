@@ -40,7 +40,7 @@ namespace Michiru.Regression
 				b = b - (learningRate * db);
 				costOut?.Invoke(curCost);
 				
-				if (i % 100 == 0)
+				if (i % (iterations * .1) == 0)
 				{
 					costs.Add(curCost);
 					if (printCost)
