@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassificationApp", "Classi
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Michiru.Utils", "Michiru.Utils\Michiru.Utils.shproj", "{5A6C8337-A8EF-4811-845B-49016389D943}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Colorize", "Colorize\Colorize.csproj", "{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Michiru.Utils\Michiru.Utils.projitems*{5a6c8337-a8ef-4811-845b-49016389d943}*SharedItemsImports = 13
@@ -41,10 +39,6 @@ Global
 		{A6AB7F8A-A96F-46AE-8AA2-4D61183C99A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6AB7F8A-A96F-46AE-8AA2-4D61183C99A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6AB7F8A-A96F-46AE-8AA2-4D61183C99A0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B36B71AF-5C1F-42FC-9CB1-30548A1E1D52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
