@@ -92,15 +92,22 @@ namespace Michiru.Utils
 			return (x.AsMatrix(), y.AsMatrix());
 		}
 
-		public static void Expand(ChiruMatrix flatColors, Stream dest)
+		public static void Expand(ChiruMatrix flatColors, Stream dest, int size, bool greyScale = false)
 		{
-            var surf = SKSurface.Create(100, 100, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            var surf = SKSurface.Create(size, size, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             var canvas = surf.Canvas;
-			for (int i = 0; i < flatColors.Height; i += 3)
+			int incrementor = 3;
+			if (greyScale)
+				incrementor = 1;
+			for (int i = 0; i < flatColors.Height; i += incrementor)
 			{
-				var col = new SKColor((byte)flatColors[i, 0], (byte)flatColors[i + 1, 0], (byte)flatColors[i + 2, 0]);
-                int y = (i / 3) / 100;
-                int x = (i / 3) - (y * 100);
+				SKColor col;
+				if(greyScale)
+					col = new SKColor((byte)flatColors[i, 0], (byte)flatColors[i, 0], (byte)flatColors[i, 0]);
+				else
+					col = new SKColor((byte)flatColors[i, 0], (byte)flatColors[i + 1, 0], (byte)flatColors[i + 2, 0]);
+                int y = (i / incrementor) / size;
+                int x = (i / incrementor) - (y * size);
                 canvas.DrawPoint(x, y, col);
 			}
             surf.Snapshot().Encode().SaveTo(dest);

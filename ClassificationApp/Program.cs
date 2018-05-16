@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using ZeroFormatter;
 using Newtonsoft.Json;
+using Michiru.Utils;
 
 namespace ClassificationApp
 {
@@ -14,39 +15,20 @@ namespace ClassificationApp
 
 		static void Main(string[] args)
 		{
-			(ChiruMatrix trainX, ChiruMatrix trainY) = GenerateData(2000);
-			SaveAsImage(trainX, trainY, "train.png");
-			var activations = new ActivationFunction[]
-			{
-				ActivationFunction.Sigmoid,
-				ActivationFunction.Sigmoid,
-				ActivationFunction.Sigmoid,
-				ActivationFunction.Sigmoid,
-				ActivationFunction.Sigmoid
-			};
-			ChiruMath.PARALLEL = false;
-			var lastCost = double.PositiveInfinity;
-			//var parameters = Parameters.FromJSON(File.ReadAllText("p.json"));
-			var iterations = 5000;
-			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 4, 4, 2 }, activations, 0.2, iterations, null, (i, c) =>
-			{
-				if (lastCost < c)
-					Console.WriteLine($"[{i}] Learning Rate might be too high");
-				if (double.IsNaN(c))
-					Console.WriteLine($"[{i}] NaN");
-				lastCost = c;
-				if (i % (iterations * .1) == 0)
-					Console.WriteLine($"[{i}] : {c}");
-			});
-			Console.WriteLine("Done!");
-			File.WriteAllText("netwok.json", parameters.ToJSON());
-			var pY = DeepNeuralNetwork.Predict(parameters, trainX, activations, y => y);
-			SaveAsImage(trainX, pY, "trainPredict.png");
-			(ChiruMatrix testX, ChiruMatrix testY) = GenerateData(50000);
-			var pTY = DeepNeuralNetwork.Predict(parameters, testX, activations, y => y);
-			SaveAsImage(testX, pTY, "testPredict.png");
-			SaveAsImage(testX, testY, "test.png");
+			var trainX = IDXReader.GetDataMatrix(@"Q:\ChiruData\train-images.idx3-ubyte", 28, 60000);
+			var trainY = IDXReader.GetLabelMatrix(@"Q:\ChiruData\train-labels.idx1-ubyte", 10, 60000);
+			var testX = IDXReader.GetDataMatrix(@"Q:\ChiruData\t10k-images.idx3-ubyte", 28, 10000);
+			var testY = IDXReader.GetLabelMatrix(@"Q:\ChiruData\t10k-labels.idx1-ubyte", 10, 10000);
 
+			var iterations = 1000;
+			ChiruMath.PARALLEL = true;
+			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 32, 16, 10 }, ActivationFunction.Sigmoid, .02, iterations, null, (i, c) =>
+			{
+				Console.WriteLine($"[{i}]: {c}");
+			});
+			File.WriteAllText(@"Q:\ChiruData\params.json", parameters.ToJSON());
+			var pY = DeepNeuralNetwork.Predict(parameters, trainX, ActivationFunction.Sigmoid);
+			Console.WriteLine(pY.ErrorWith(trainY));
 			Console.ReadLine();
 		}
 

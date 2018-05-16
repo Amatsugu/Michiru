@@ -9,6 +9,7 @@
     <Import_RootNamespace>Michiru.Utils</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\ImagePreProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IDXReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ImagePreProcessor.cs" />
   </ItemGroup>
 </Project>

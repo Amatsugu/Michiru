@@ -119,7 +119,7 @@ namespace ChiruApp
 					{
 						statusText.Dispatcher.Invoke(() => statusText.Content = $"Decoding Image [{i+1}/{x.Width}]" );
 						progressBar.Dispatcher.Invoke(() => progressBar.Value = ((double)i / (double)x.Width) * 100);
-						ImagePreProcessor.Expand(x[i], s);
+						ImagePreProcessor.Expand(x[i], s, 100, false);
 						var box = statusText.Dispatcher.Invoke(() =>
 						{
 							var b = new ImageBox

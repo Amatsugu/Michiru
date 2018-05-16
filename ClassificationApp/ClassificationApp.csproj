@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChiruApp\ChiruApp.csproj" />
+    <ProjectReference Include="..\Michiru\Michiru.csproj" />
   </ItemGroup>
+
+  <Import Project="..\Michiru.Utils\Michiru.Utils.projitems" Label="Shared" />
 
 </Project>

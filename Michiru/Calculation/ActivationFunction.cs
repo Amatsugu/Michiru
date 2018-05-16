@@ -59,14 +59,14 @@ namespace Michiru.Calculation
 	public class SigmoidActivation : ActivationFunction
 	{
 		public override double Activate(double x) => 1 / (1 + Math.Pow(Math.E, -x));
-		public override double DeActivate(double x) => Math.Pow(Math.E, x) / Math.Pow(Math.Pow(Math.E, x) + 1, 2);
+		public override double DeActivate(double x) => Activate(x) * (1 - Activate(x)); //Math.Pow(Math.E, x) / Math.Pow(Math.Pow(Math.E, x) + 1, 2);
 
 	}
 
 	public class TanHActivation : ActivationFunction
 	{
 		public override double Activate(double x) => Math.Tanh(x);
-		public override double DeActivate(double x) => (1 - Math.Pow(Math.Tanh(x), 2));
+		public override double DeActivate(double x) => (1 - (Math.Tanh(x) * Math.Tanh(x)));
 
 		//public override ChiruMatrix DeActivate(ChiruMatrix z) => 1 - z.Map(x => Math.Pow(x, 2));
 

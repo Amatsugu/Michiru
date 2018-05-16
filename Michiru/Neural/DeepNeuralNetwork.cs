@@ -144,6 +144,16 @@ namespace Michiru.Neural
 			return parameters;
 		}
 
+		public static Parameters Model(ChiruMatrix X, ChiruMatrix Y, int[] layers, ActivationFunction activationFunction, double learningRate = 0.0075, int iterations = 3000, Parameters parameters = null, Action<int, double> statusReporter = null, Func<bool> cancel = null)
+		{
+			var activations = new ActivationFunction[layers.Length + 2];
+			for (int i = 0; i < activations.Length; i++)
+			{
+				activations[i] = activationFunction;
+			}
+			return Model(X, Y, layers, activations, learningRate, iterations, parameters, statusReporter, cancel);
+		}
+
 		/// <summary>
 		/// Create a Network Model and train it
 		/// </summary>
@@ -194,6 +204,25 @@ namespace Michiru.Neural
 		/// </summary>
 		/// <param name="parameters">The parameters from a network model</param>
 		/// <param name="X">Data set to make predictions based on</param>
+		/// <param name="activationFunction">Activation function to use for all layers</param>
+		/// <returns>Matrix of the resulting predictions</returns>
+		public static ChiruMatrix Predict(Parameters parameters, ChiruMatrix X, ActivationFunction activationFunction)
+		{
+			var activations = new ActivationFunction[parameters.B.Length + 1];
+			for (int i = 0; i < activations.Length; i++)
+			{
+				activations[i] = activationFunction;
+			}
+			return ModelForward(X, parameters, activations).AL.Map(x => x > .5 ? 1 : 0);
+		}
+
+
+		/// <summary>
+		/// Make predictions based on a network model
+		/// </summary>
+		/// <param name="parameters">The parameters from a network model</param>
+		/// <param name="X">Data set to make predictions based on</param>
+		/// <param name="activations">Activation Functions to use for each layer</param>
 		/// <returns>Matrix of the resulting predictions</returns>
 		public static ChiruMatrix Predict(Parameters parameters, ChiruMatrix X, ActivationFunction[] activations) => ModelForward(X, parameters, activations).AL.Map(x => x > .5 ? 1 : 0);
 		public static ChiruMatrix Predict(Parameters parameters, ChiruMatrix X, ActivationFunction[] activations, Func<double, double> mapFunction) => ModelForward(X, parameters, activations).AL.Map(mapFunction);
