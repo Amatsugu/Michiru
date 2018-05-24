@@ -11,24 +11,31 @@ namespace ClassificationApp
 {
 	class Program
 	{
-		public static int SIZE = 1000;
+		public const int SIZE = 1000;
 
 		static void Main(string[] args)
 		{
 			var trainX = IDXReader.GetDataMatrix(@"Q:\ChiruData\train-images.idx3-ubyte", 28, 60000);
 			var trainY = IDXReader.GetLabelMatrix(@"Q:\ChiruData\train-labels.idx1-ubyte", 10, 60000);
-			var testX = IDXReader.GetDataMatrix(@"Q:\ChiruData\t10k-images.idx3-ubyte", 28, 10000);
-			var testY = IDXReader.GetLabelMatrix(@"Q:\ChiruData\t10k-labels.idx1-ubyte", 10, 10000);
+			//var testX = IDXReader.GetDataMatrix(@"Q:\ChiruData\t10k-images.idx3-ubyte", 28, 10000);
+			//var testY = IDXReader.GetLabelMatrix(@"Q:\ChiruData\t10k-labels.idx1-ubyte", 10, 10000);
 
 			var iterations = 1000;
-			ChiruMath.PARALLEL = true;
-			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 32, 16, 10 }, ActivationFunction.Sigmoid, .02, iterations, null, (i, c) =>
+			//ChiruMath.PARALLEL = true;
+			Console.WriteLine("Training");
+			var (W1, b1, W2, b2) = NeuralNetwork.Model(trainX, trainY, 16, iterations, 1.2, true);
+			/*var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 32, 16, 10 }, ActivationFunction.Sigmoid, .02, iterations, null, (i, c) =>
 			{
 				Console.WriteLine($"[{i}]: {c}");
-			});
-			File.WriteAllText(@"Q:\ChiruData\params.json", parameters.ToJSON());
-			var pY = DeepNeuralNetwork.Predict(parameters, trainX, ActivationFunction.Sigmoid);
+			});*/
+
+			//var parameters = Parameters.FromJSON(File.ReadAllText(@"Q:\ChiruData\params.json"));
+			//File.WriteAllText(@"Q:\ChiruData\params.json", parameters.ToJSON());
+			var pY = NeuralNetwork.Predict(W1, b1, W2, b2, trainX);
+			//var pY = DeepNeuralNetwork.Predict(parameters, trainX, ActivationFunction.Sigmoid);
+			Console.WriteLine(pY.Any(x => x == 1));
 			Console.WriteLine(pY.ErrorWith(trainY));
+
 			Console.ReadLine();
 		}
 

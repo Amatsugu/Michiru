@@ -10,16 +10,6 @@ namespace Michiru.Calculation
 		public static bool PARALLEL = true;
 		public static ChiruMatrix AsMatrix(this double[,] d) => new ChiruMatrix(d);
 
-		public static bool Equals(this double[] a, double[] b)
-		{
-			if (a.Length != b.Length)
-				return false;
-			for (int i = 0; i < a.Length; i++)
-				if (a[i] != b[i])
-					return false;
-			return true;
-		}
-
 		public static bool Equals(this double[,] a, double[,] b)
 		{
 			int h = a.GetLength(0), w = a.GetLength(1);
@@ -53,7 +43,7 @@ namespace Michiru.Calculation
 		{
 			if (a.GetLength(1) != b.GetLength(0))
 				throw new Exception("Cannot Multiply these Matricies");
-			int h = a.GetLength(0), w = b.GetLength(1);
+			int h = a.GetLength(0), w = b.GetLength(1), w1 = a.GetLength(1);
 			double[,] o = new double[h, w];
 			if(!PARALLEL)
 			{
@@ -61,7 +51,7 @@ namespace Michiru.Calculation
 				{
 					for (int j = 0; j < w; j++)
 					{
-						for (int k = 0; k < a.GetLength(1); k++)
+						for (int k = 0; k < w1; k++)
 						{
 							o[i, j] += a[i, k] * b[k, j];
 						}

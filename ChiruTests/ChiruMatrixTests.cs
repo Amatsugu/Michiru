@@ -16,17 +16,17 @@ namespace ChiruTests
 			}), b = a;
 
 
-		[TestMethod]
+		/*[TestMethod]
 		[TestCategory("Mathix Operations")]
-		public void Dot()
+		public void Cross()
 		{
 			var r = a / b;
 			Assert.AreEqual(r, new double[,] { { 14, 14, 14 } }.AsMatrix());
-		}
+		}*/
 
 		[TestMethod]
 		[TestCategory("Mathix Operations")]
-		public void Multiply()
+		public void Dot()
 		{
 			var r = a * b;
 			var e = new ChiruMatrix(new double[,]
@@ -36,6 +36,13 @@ namespace ChiruTests
 				{6, 12, 18 }
 			});
 			Assert.AreEqual(r, e);
+		}
+
+		[TestMethod]
+		public void ErrorWith()
+		{
+			var e = new double[,] { { 10, 10, 0 }, { 10, 10, 10 } }.AsMatrix().ErrorWith(new double[,] { { 10, 10, 0 }, { 10, 10, 10 } }.AsMatrix());
+			Assert.AreEqual(0, e);
 		}
 
 		[TestMethod]

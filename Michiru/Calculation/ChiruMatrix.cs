@@ -6,13 +6,11 @@ using System.Linq.Expressions;
 using System.Text;
 using Michiru.Calculation;
 using Newtonsoft.Json;
-using ZeroFormatter;
 
 namespace Michiru.Calculation
 {
 	public struct ChiruMatrix
 	{
-		[Index(0)]
 		public double[,] Values { get; }
 		[JsonIgnore]
 		public int Height => Values.GetLength(0);
@@ -29,10 +27,10 @@ namespace Michiru.Calculation
 
 		public ChiruMatrix(double[,] values) => Values = values;
 
-		public double this[int i, int j]
+		public ref double this[int i, int j]
 		{
-			get => Values[i, j];
-			set => Values[i, j] = value;
+			get => ref Values[i, j];
+			//set => Values[i, j] = value;
 		}
 
 		public ChiruMatrix this[int j]
@@ -185,7 +183,9 @@ namespace Michiru.Calculation
 		/// <returns></returns>
 		public bool HasNaN() => Any(double.IsNaN);
 
-		public double ErrorWith(ChiruMatrix Y) => (((Y / T) + ((1 - Y) / (1 - T))).Sum() / Y.Width) * 100;
+		public double ErrorWith(ChiruMatrix actual) => (Math.Abs(((actual - this).ElementDivide(actual)).Map(x => double.IsNaN(x) || double.IsInfinity(x) ? 0 : x).Sum() / Width)) * 100;
+
+		private ChiruMatrix ElementDivide(ChiruMatrix b) => ChiruMath.ElementDivide(Values, b.Values).AsMatrix();
 
 		public ChiruMatrix Activate(ActivationFunction activator) => activator.Activate(this);
 		public ChiruMatrix DeActivate(ActivationFunction activator) => activator.DeActivate(this);
@@ -321,6 +321,5 @@ namespace Michiru.Calculation
 		}
 
 		public override int GetHashCode() => Values.GetHashCode();
-
 	}
 }
