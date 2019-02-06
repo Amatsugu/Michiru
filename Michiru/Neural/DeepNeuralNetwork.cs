@@ -85,7 +85,7 @@ namespace Michiru.Neural
 		{
 			int m = cache.A.Width;
 			var dW = (dZ * cache.A.T) / m;
-			var db = dZ.SumAxis(1) / m;
+			var db = dZ.SumAxis(MatrixAxis.Horizontal) / m;
 			var dAPrev = cache.W.T * dZ;
 			return (dAPrev, dW, db);
 		}
@@ -183,10 +183,10 @@ namespace Michiru.Neural
 				parameters = InitializeParameters(layerDims);
 			for (int i = 0; i < iterations; i++)
 			{
-				var f = ModelForward(X, parameters, activationFunctions);
-				var cost = ComputeCost(f.AL, Y);
+				var (AL, caches) = ModelForward(X, parameters, activationFunctions);
+				var cost = ComputeCost(AL, Y);
 				statusReporter?.Invoke(i, cost);
-				var b = ModelBackward(f.AL, Y, f.caches, activationFunctions);
+				var b = ModelBackward(AL, Y, caches, activationFunctions);
 				parameters = UpdateParameters(parameters, b, learningRate);
 				/*if (printCost && (i + 1) % percentile == 0)
 				{

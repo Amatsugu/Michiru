@@ -38,6 +38,23 @@
 							<GroupBox Header="Options" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
 								<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
 									<StackPanel>
+										<GroupBox Header="Image Info">
+											<Grid>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="35"/>
+													<ColumnDefinition Width="5"/>
+													<ColumnDefinition Width="*"/>
+													<ColumnDefinition Width="5"/>
+													<ColumnDefinition Width="50"/>
+												</Grid.ColumnDefinitions>
+												<Grid.RowDefinitions>
+													<RowDefinition/>
+												</Grid.RowDefinitions>
+												<Label Content="Size:"/>
+												<TextBox Grid.Column="2" Padding="0 5 0 5" Name="trainImageSize">100</TextBox>
+												<Button Grid.Column="4" Content="Set" Click="SetImageSize"/>
+											</Grid>
+										</GroupBox>
 										<GroupBox Header="Training Data" Name="trainingDataGroup">
 											<Grid>
 												<Grid.ColumnDefinitions>
@@ -179,7 +196,7 @@
 					<TabItem Header="Predict">
 						<Grid>
 							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="116"></ColumnDefinition>
+								<ColumnDefinition Width="126"></ColumnDefinition>
 								<ColumnDefinition Width="400"></ColumnDefinition>
 								<ColumnDefinition Width="*"></ColumnDefinition>
 							</Grid.ColumnDefinitions>
@@ -210,10 +227,29 @@
 
 							<GroupBox Header="Options" Grid.Column="2" Grid.RowSpan="2">
 								<StackPanel>
+									<GroupBox Header="Image Info">
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="35"/>
+												<ColumnDefinition Width="5"/>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="5"/>
+												<ColumnDefinition Width="50"/>
+											</Grid.ColumnDefinitions>
+											<Grid.RowDefinitions>
+												<RowDefinition/>
+											</Grid.RowDefinitions>
+											<Label Content="Size:"/>
+											<TextBox Grid.Column="2" Padding="0 5 0 5" Name="testImageSize">100</TextBox>
+											<Button Grid.Column="4" Content="Set" Click="SetImageSize"/>
+										</Grid>
+									</GroupBox>
 									<GroupBox Header="Testing Data">
 										<Grid>
 											<Grid.ColumnDefinitions>
 												<ColumnDefinition Width="20"/>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="5"/>
 												<ColumnDefinition Width="*"/>
 												<ColumnDefinition Width="30"/>
 											</Grid.ColumnDefinitions>
@@ -225,12 +261,13 @@
 												<RowDefinition/>
 											</Grid.RowDefinitions>
 											<Label Content="X" Grid.Column="0"/>
-											<TextBox Grid.Column="1" Name="testXLocation" Padding="0 5 0 5"/>
-											<Button Content="..." Grid.Column="2" Click="TestXBrowse"/>
+											<TextBox Grid.Column="1" Grid.ColumnSpan="3" Name="testXLocation" Padding="0 5 0 5"/>
+											<Button Content="..." Grid.Column="4" Click="TestXBrowse"/>
 											<Label Content="Y" Grid.Column="0" Grid.Row="2"/>
-											<TextBox Grid.Column="1" Grid.Row="2" Name="testYLocation" Padding="0 5 0 5"/>
-											<Button Content="..." Grid.Column="2" Grid.Row="2" Click="TestYBrowse"/>
-											<Button Content="Load Data" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Click="LoadTestDataClick"/>
+											<TextBox Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2" Name="testYLocation" Padding="0 5 0 5"/>
+											<Button Content="..." Grid.Column="4" Grid.ColumnSpan="3" Grid.Row="2" Click="TestYBrowse"/>
+											<Button Content="Load Data" Grid.Row="4" Grid.Column="1" Click="LoadTestDataClick"/>
+											<Button Content="Use Training Data" Grid.Row="4" Grid.Column="3" Click="UseTrainingDataAsync"/>
 										</Grid>
 									</GroupBox>
 									<GroupBox Header="Raw Data">
@@ -288,10 +325,11 @@
 								</StackPanel>
 							</GroupBox>
 
-							<GroupBox Header="Stats" Grid.Row="1" Grid.ColumnSpan="2">
+							<GroupBox Header="Status" Grid.Row="1" Grid.ColumnSpan="2">
 								<StackPanel>
 									<Label Content="Data Set: No Data" Name="dataSetShape"/>
 									<Label Content="Accuracy: No Data" Name="predictAccuracy"/>
+									<Label Content="Network: No active network" Name="statusLoadedNetwork"/>
 									<Label Content="Positive Accuracy: No Data" Name="predictProAccuracy"/>
 									<Label Content="Negative Accuracy: No Data" Name="predictNegAccuracy"/>
 								</StackPanel>

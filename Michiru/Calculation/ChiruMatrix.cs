@@ -196,54 +196,14 @@ namespace Michiru.Calculation
 		/// Calculate the sum of the entire matrix
 		/// </summary>
 		/// <returns>sum as a double</returns>
-		public double Sum()
-		{
-			double o = 0;
-			for (int i = 0; i < Height; i++)
-			{
-				for (int j = 0; j < Width; j++)
-				{
-					o += Values[i, j];
-				}
-			}
-			return o;
-		}
+		public double Sum() => ChiruMath.Sum(Values);
 
 		/// <summary>
 		/// Calculate the sum along a given axis
 		/// </summary>
 		/// <param name="axis">The axis to sum</param>
 		/// <returns>The sum as a matrix</returns>
-		public ChiruMatrix SumAxis(int axis)
-		{
-			ChiruMatrix sum;
-			if(axis == 0)
-			{
-				sum = Zeros(1, Width);
-				for (int i = 0; i < Height; i++)
-				{
-					for (int j = 0; j < Width; j++)
-					{
-						sum[0, j] += this[i, j];
-					}
-				}
-			}else if(axis == 1)
-			{
-				sum = Zeros(Height, 1);
-				for (int i = 0; i < Height; i++)
-				{
-					for (int j = 0; j < Width; j++)
-					{
-						sum[i, 0] += this[i, j];
-					}
-				}
-			}else
-			{
-				throw new Exception("Invalid Axis");
-			}
-
-			return sum;
-		}
+		public ChiruMatrix SumAxis(MatrixAxis axis) => ChiruMath.SumAxis(Values, axis).AsMatrix();
 
 		/// <summary>
 		/// Calulares the mean values of each element in the matrix

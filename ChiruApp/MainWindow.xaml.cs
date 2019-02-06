@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SkiaSharp;
 using System;
+using System.Linq;
 
 namespace ChiruApp
 {
@@ -30,6 +31,7 @@ namespace ChiruApp
 		private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
 		private SKSurface _lossSurf, _networkSurf;
 		private ChiruMatrix _lossData;
+		private int _imageSize = 100;
 
 		public MainWindow()
 		{
@@ -92,7 +94,14 @@ namespace ChiruApp
 			_hasData = true;
 			testingSetDisplay.ItemsSource = await UpdateDataDisplay(_testX, _testY, true);
 			UpdateButtons();
-			dataSetShape.Content = _testX.Shape.ToString();
+			UpdateStatus();
+		}
+
+		public void UpdateStatus()
+		{
+			dataSetShape.Content = $"Data Set: {(_testX.IsEmpty() ? "No Data" : (_testX.Shape.ToString()))}";
+			predictAccuracy.Content = $"Accuracy: {(_predictY.IsEmpty() ? "No Data" : ($"{_predictY.ErrorWith(_testY).ToString()}%"))}";
+			statusLoadedNetwork.Content = $"Network: {(_parameters == null ? "No Network" : ($"{_parameters.B.Length} Layers {{{string.Join(",", _parameters.B.Select(b => b.Height))}}}"))}";
 		}
 
 		private (ChiruMatrix X, ChiruMatrix Y) LoadData(string xL, string yL)
@@ -118,8 +127,8 @@ namespace ChiruApp
 					for (int i = 0; i < x.Width; i++)
 					{
 						statusText.Dispatcher.Invoke(() => statusText.Content = $"Decoding Image [{i+1}/{x.Width}]" );
-						progressBar.Dispatcher.Invoke(() => progressBar.Value = ((double)i / (double)x.Width) * 100);
-						ImagePreProcessor.Expand(x[i], s, 100, false);
+						progressBar.Dispatcher.Invoke(() => progressBar.Value = (i / (double)x.Width) * 100);
+						ImagePreProcessor.Expand(x[i], s, _imageSize, false);
 						var box = statusText.Dispatcher.Invoke(() =>
 						{
 							var b = new ImageBox
@@ -161,9 +170,9 @@ namespace ChiruApp
 		private ActivationFunction[] GetActivations()
 		{
 			var act = new ActivationFunction[_layers.Count + 2];
-			Func<int, ActivationFunction> getFunc = (i) =>
+			ActivationFunction getFunc(int i)
 			{
-				switch(i)
+				switch (i)
 				{
 					case 0:
 						return ActivationFunction.ReLu;
@@ -174,7 +183,7 @@ namespace ChiruApp
 					default:
 						return ActivationFunction.Sigmoid;
 				}
-			};
+			}
 			act[0] = getFunc(inputActivation.SelectedIndex);
 			act[act.Length-1] = getFunc(outputActivation.SelectedIndex);
 			for (int i = 0; i < _layers.Count; i++)
@@ -306,6 +315,7 @@ namespace ChiruApp
 			_lossData = default;
 			UpdateLayerNames();
 			UpdateButtons();
+			UpdateStatus();
 		}
 
 		private  void SaveNetwork(object sender, RoutedEventArgs e)
@@ -333,6 +343,7 @@ namespace ChiruApp
 			_lossData = default;
 			UpdateLayerNames();
 			UpdateButtons();
+			UpdateStatus();
 		}
 
 		private async void PredictSelected(object sender, RoutedEventArgs e)
@@ -348,12 +359,30 @@ namespace ChiruApp
 		{
 			var a = GetActivations();
 			_predictY = await Task.Run(() => DeepNeuralNetwork.Predict(_parameters, _testX, a));
-			UpdatePredictStats();
+			testingSetDisplay.ItemsSource = await UpdateDataDisplay(_testX, _testY, true);
+			UpdateStatus();
 		}
 
-		private void UpdatePredictStats()
+		private void SetImageSize(object sender, RoutedEventArgs e)
 		{
-			predictAccuracy.Content = _predictY.IsEmpty() ? "No Data" :  _predictY.ErrorWith(_testY).ToString();
+			var teS = Convert.ToInt32(testImageSize.Text);
+			var trS = Convert.ToInt32(trainImageSize.Text);
+			if (teS == _imageSize)
+				_imageSize = trS;
+			else
+				_imageSize = teS;
+			testImageSize.Text = _imageSize.ToString();
+			trainImageSize.Text = _imageSize.ToString();
+		}
+
+		private async void UseTrainingDataAsync(object sender, RoutedEventArgs e)
+		{
+			_testX = _trainX.Copy();
+			_testY = _trainY.Copy();
+			testingSetDisplay.ItemsSource = await UpdateDataDisplay(_testX, _testY, true);
+			UpdateButtons();
+			UpdateStatus();
+
 		}
 
 		private void AddLayer(object sender, RoutedEventArgs e)

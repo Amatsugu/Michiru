@@ -8,25 +8,26 @@ namespace ChiruTests
     [TestClass]
     public class ChiruMatrixTests
     {
-		static ChiruMatrix a = new ChiruMatrix(new double[,]
-			{
-				{1, 2, 3 },
-				{1, 2, 3 },
-				{1, 2, 3 }
-			}), b = a;
-
-
-		/*[TestMethod]
-		[TestCategory("Mathix Operations")]
-		public void Cross()
+		private static ChiruMatrix a = new ChiruMatrix(new double[,]
 		{
-			var r = a / b;
-			Assert.AreEqual(r, new double[,] { { 14, 14, 14 } }.AsMatrix());
-		}*/
+			{1, 2, 3 },
+			{1, 2, 3 },
+			{1, 2, 3 }
+		});
+		private static readonly ChiruMatrix b = a;
 
+		
 		[TestMethod]
 		[TestCategory("Mathix Operations")]
 		public void Dot()
+		{
+			var r = a / b;
+			Assert.AreEqual(new double[,] { { 6, 12, 18 } }.AsMatrix(), r);
+		}
+
+		[TestMethod]
+		[TestCategory("Mathix Operations")]
+		public void Multiply()
 		{
 			var r = a * b;
 			var e = new ChiruMatrix(new double[,]
@@ -35,14 +36,14 @@ namespace ChiruTests
 				{6, 12, 18 },
 				{6, 12, 18 }
 			});
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
 		}
 
 		[TestMethod]
 		public void ErrorWith()
 		{
 			var e = new double[,] { { 10, 10, 0 }, { 10, 10, 10 } }.AsMatrix().ErrorWith(new double[,] { { 10, 10, 0 }, { 10, 10, 10 } }.AsMatrix());
-			Assert.AreEqual(0, e);
+			Assert.AreEqual(e, 0);
 		}
 
 		[TestMethod]
@@ -51,7 +52,7 @@ namespace ChiruTests
 		{
 			var r = a - b;
 			var e = ChiruMatrix.Zeros(3, 3);
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
 		}
 
 		[TestMethod]
@@ -65,7 +66,35 @@ namespace ChiruTests
 				{2, 4, 6 },
 				{2, 4, 6 }
 			});
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
+		}
+
+		[TestMethod]
+		[TestCategory("Mathix Operations")]
+		public void SumAxisHorizontal()
+		{
+			var r = a.SumAxis(MatrixAxis.Horizontal);
+
+			var e = new double[,]
+			{
+				{6},
+				{6},
+				{6}
+			}.AsMatrix();
+			Assert.IsTrue(r.Equals(e));
+		}
+
+		[TestMethod]
+		[TestCategory("Mathix Operations")]
+		public void SumAxisVertical()
+		{
+			var r = a.SumAxis(MatrixAxis.Vertical);
+
+			var e = new double[,]
+			{
+				{3, 6, 9},
+			}.AsMatrix();
+			Assert.IsTrue(r.Equals(e));
 		}
 
 		[TestMethod]
@@ -79,7 +108,7 @@ namespace ChiruTests
 				{2, 4, 6 },
 				{2, 4, 6 }
 			});
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
 		}
 
 		[TestMethod]
@@ -93,7 +122,7 @@ namespace ChiruTests
 				{3, 4, 5 },
 				{3, 4, 5 }
 			});
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
 		}
 
 		[TestMethod]
@@ -107,7 +136,7 @@ namespace ChiruTests
 				{-1, 0, 1 },
 				{-1, 0, 1 }
 			});
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
 		}
 
 		[TestMethod]
@@ -121,7 +150,7 @@ namespace ChiruTests
 				{.5, 1, 1.5 },
 				{.5, 1, 1.5 }
 			});
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
 		}
 
 		[TestMethod]
@@ -135,7 +164,7 @@ namespace ChiruTests
 				{2, 2, 2 },
 				{3, 3, 3 }
 			});
-			Assert.AreEqual(r, e);
+			Assert.AreEqual(e, r);
 		}
 
 	}

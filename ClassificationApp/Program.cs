@@ -6,6 +6,8 @@ using System.IO;
 using ZeroFormatter;
 using Newtonsoft.Json;
 using Michiru.Utils;
+using System.Linq;
+using System.Diagnostics;
 
 namespace ClassificationApp
 {
@@ -15,28 +17,66 @@ namespace ClassificationApp
 
 		static void Main(string[] args)
 		{
+
+			ZRTrain();
+			
+			Console.ReadLine();
+		}
+
+		static void IdxTrain()
+		{
 			var trainX = IDXReader.GetDataMatrix(@"Q:\ChiruData\train-images.idx3-ubyte", 28, 60000);
 			var trainY = IDXReader.GetLabelMatrix(@"Q:\ChiruData\train-labels.idx1-ubyte", 10, 60000);
+
+
+			//File.WriteAllText(@"C:\Users\Suzune\Edna\ChiruData\idxY.json", trainY.ToJSON());
 			//var testX = IDXReader.GetDataMatrix(@"Q:\ChiruData\t10k-images.idx3-ubyte", 28, 10000);
 			//var testY = IDXReader.GetLabelMatrix(@"Q:\ChiruData\t10k-labels.idx1-ubyte", 10, 10000);
 
 			var iterations = 1000;
-			//ChiruMath.PARALLEL = true;
+			ChiruMath.PARALLEL = true;
 			Console.WriteLine("Training");
-			var (W1, b1, W2, b2) = NeuralNetwork.Model(trainX, trainY, 16, iterations, 1.2, true);
-			/*var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 32, 16, 10 }, ActivationFunction.Sigmoid, .02, iterations, null, (i, c) =>
+			//var (W1, b1, W2, b2) = NeuralNetwork.Model(trainX, trainY, 16, iterations, 1.2, true);
+			var parameters = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 4 }, ActivationFunction.Sigmoid, .02, iterations, null, (i, c) =>
 			{
 				Console.WriteLine($"[{i}]: {c}");
-			});*/
+			});
 
 			//var parameters = Parameters.FromJSON(File.ReadAllText(@"Q:\ChiruData\params.json"));
-			//File.WriteAllText(@"Q:\ChiruData\params.json", parameters.ToJSON());
-			var pY = NeuralNetwork.Predict(W1, b1, W2, b2, trainX);
-			//var pY = DeepNeuralNetwork.Predict(parameters, trainX, ActivationFunction.Sigmoid);
+			File.WriteAllText(@"Q:\ChiruData\params.json", parameters.ToJSON());
+			var pY = DeepNeuralNetwork.Predict(parameters, trainX, ActivationFunction.Sigmoid);
 			Console.WriteLine(pY.Any(x => x == 1));
 			Console.WriteLine(pY.ErrorWith(trainY));
+		}
 
-			Console.ReadLine();
+		static void ZRTrain()
+		{
+			var trainX = ChiruMatrix.FromJSON(File.ReadAllText(@"C:\Users\Suzune\Edna\ChiruData\Train\Small\X.json"));
+			var trainY = ChiruMatrix.FromJSON(File.ReadAllText(@"C:\Users\Suzune\Edna\ChiruData\Train\Small\Y_ex.json"));
+
+			var iterations = 1000;
+			Console.WriteLine("Training...");
+			var para = Parameters.FromJSON(File.ReadAllText(@"C:\Users\Suzune\Edna\ChiruData\Train\Small\trained2.json"));
+			para = DeepNeuralNetwork.Model(trainX, trainY, new int[] { 32, 8 }, ActivationFunction.Sigmoid, 0.00002, iterations, para, (i, c) =>
+			{
+				Console.WriteLine($"[{i}]: {c}");
+			});
+			File.WriteAllText(@"C:\Users\Suzune\Edna\ChiruData\Train\Small\trained3.json", para.ToJSON());
+			Console.WriteLine("Trainig Done");
+		}
+
+		static ChiruMatrix RefactorOutput(string path)
+		{
+			ChiruMatrix original = ChiruMatrix.FromJSON(File.ReadAllText(path));
+			ChiruMatrix refactored = ChiruMatrix.Zeros(2, original.Width);
+			for (int j = 0; j < original.Width; j++)
+			{
+				if (original[0, j] == 1)
+					refactored[1, j] = 1;
+				else
+					refactored[0, j] = 1;
+			}
+			return refactored;
 		}
 
 		static void SaveAsImage(ChiruMatrix X, ChiruMatrix Y, string name)

@@ -3,16 +3,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using ZeroFormatter;
 
 namespace Michiru.Neural
 {
-	[ZeroFormattable]
     public class Parameters
     {
-		[Index(0)]
 		public virtual ChiruMatrix[] W { get; set; }
-		[Index(1)]
 		public virtual ChiruMatrix[] B { get; set; }
 
 		public Parameters()
