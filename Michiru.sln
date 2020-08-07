@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Michiru", "Michiru\Michiru.csproj", "{FD553768-6EF2-41CD-8683-D06D39837B5A}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Michiru.Utils\Michiru.Utils.projitems*{5a6c8337-a8ef-4811-845b-49016389d943}*SharedItemsImports = 13
+		Michiru.Utils\Michiru.Utils.projitems*{a6ab7f8a-a96f-46ae-8aa2-4d61183c99a0}*SharedItemsImports = 5
+		Michiru.Utils\Michiru.Utils.projitems*{fd553768-6ef2-41cd-8683-d06d39837b5a}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -17,9 +17,19 @@ namespace ClassificationApp
 
 		static void Main(string[] args)
 		{
+			var (X, Y) = GenerateData(10000);
+			Console.WriteLine("Train");
+			SaveAsImage(X, Y, "perfect.png");
+			var model = DeepNeuralNetwork.Model(X, Y, new int[] { 2, 3, 5 }, ActivationFunction.Sigmoid, statusReporter: (i, e) =>
+			{
+				if (i % 100 == 0)
+					Console.WriteLine($"[{i}] {e}");
+			}, learningRate: .009, iterations: 10000);
+			Console.WriteLine("Predict");
+			var p = DeepNeuralNetwork.Predict(model, X, ActivationFunction.Sigmoid);
+			Console.WriteLine("Save");
+			SaveAsImage(X, p, "predict.png");
 
-			ZRTrain();
-			
 			Console.ReadLine();
 		}
 
@@ -104,7 +114,7 @@ namespace ClassificationApp
 			{
 				var x = X[0, n] = rand.NextDouble();
 				var y = X[1, n] = rand.NextDouble();
-				if (y >= x*x*x)
+				if (y >= x)
 				{
 					Y[0, n] = 1;
 				}
