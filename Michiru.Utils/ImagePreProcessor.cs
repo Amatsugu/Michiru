@@ -1,14 +1,16 @@
 using SkiaSharp;
+
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Michiru.Calculation;
 
 namespace Michiru.Utils
 {
-    public static class ImagePreProcessor
-    {
+	public static class ImagePreProcessor
+	{
 		public static void Crop(string inDir, string outDir)
 		{
 			var files = Directory.EnumerateFiles(inDir, "*", SearchOption.TopDirectoryOnly);
@@ -29,7 +31,6 @@ namespace Michiru.Utils
 					}
 					using (var subset = image.Subset(crop))
 					{
-
 						using (var cropped = subset.Encode().AsStream())
 						{
 							string num = c++.ToString();
@@ -52,7 +53,7 @@ namespace Michiru.Utils
 			if (nameFunc == null)
 				nameFunc = (i, n) => n;
 			var files = Directory.EnumerateFiles(inDir, "*", SearchOption.TopDirectoryOnly);
-			foreach(var f in files)
+			foreach (var f in files)
 			{
 				using (var img = SKBitmap.Decode(f))
 				{
@@ -60,8 +61,7 @@ namespace Michiru.Utils
 					{
 						Height = (int)(img.Height * scaleFactor),
 						Width = (int)(img.Width * scaleFactor)
-					}, SKBitmapResizeMethod.Hamming);
-
+					}, SKSamplingOptions.Default);
 				}
 			}
 		}
@@ -94,42 +94,48 @@ namespace Michiru.Utils
 
 		public static void Expand(ChiruMatrix flatColors, Stream dest, int size, bool greyScale = false)
 		{
-            var surf = SKSurface.Create(size, size, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
-            var canvas = surf.Canvas;
+			//size, size, SKImageInfo.PlatformColorType, SKAlphaType.Premul
+			var surf = SKSurface.Create(new SKImageInfo
+			{
+				Height = size,
+				Width = size,
+				AlphaType = SKAlphaType.Premul,
+			});
+			var canvas = surf.Canvas;
 			int incrementor = 3;
 			if (greyScale)
 				incrementor = 1;
 			for (int i = 0; i < flatColors.Height; i += incrementor)
 			{
 				SKColor col;
-				if(greyScale)
+				if (greyScale)
 					col = new SKColor((byte)flatColors[i, 0], (byte)flatColors[i, 0], (byte)flatColors[i, 0]);
 				else
 					col = new SKColor((byte)flatColors[i, 0], (byte)flatColors[i + 1, 0], (byte)flatColors[i + 2, 0]);
-                int y = (i / incrementor) / size;
-                int x = (i / incrementor) - (y * size);
-                canvas.DrawPoint(x, y, col);
+				int y = (i / incrementor) / size;
+				int x = (i / incrementor) - (y * size);
+				canvas.DrawPoint(x, y, col);
 			}
-            surf.Snapshot().Encode().SaveTo(dest);
-            surf.Dispose();
+			surf.Snapshot().Encode().SaveTo(dest);
+			surf.Dispose();
 		}
 
-        public static ChiruMatrix ToGreyscale(ChiruMatrix images)
-        {
-            var grey = ChiruMatrix.Zeros(images.Height, images.Width);
-            for (int i = 0; i < images.Width; i++)
-            {
-                var image = images[i];
-                for (int j = 0; j < image.Height; j+= 3)
-                {
-                    double a = image[j, 0] + image[j + 1, 0] + image[j + 2, 0];
-                    a /= 3;
-                    grey[j, i] = a;
-                    grey[j+1, i] = a;
-                    grey[j+2, i] = a;
-                }
-            }
-            return grey;
-        }
+		public static ChiruMatrix ToGreyscale(ChiruMatrix images)
+		{
+			var grey = ChiruMatrix.Zeros(images.Height, images.Width);
+			for (int i = 0; i < images.Width; i++)
+			{
+				var image = images[i];
+				for (int j = 0; j < image.Height; j += 3)
+				{
+					double a = image[j, 0] + image[j + 1, 0] + image[j + 2, 0];
+					a /= 3;
+					grey[j, i] = a;
+					grey[j + 1, i] = a;
+					grey[j + 2, i] = a;
+				}
+			}
+			return grey;
+		}
 	}
 }

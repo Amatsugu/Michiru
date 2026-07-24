@@ -8,20 +8,20 @@ namespace ChiruTests
     [TestClass]
     public class ChiruMatrixTests
     {
-		private static ChiruMatrix a = new ChiruMatrix(new double[,]
+		private static readonly ChiruMatrix _a = new(new double[,]
 		{
 			{1, 2, 3 },
 			{1, 2, 3 },
 			{1, 2, 3 }
 		});
-		private static readonly ChiruMatrix b = a;
+		private static readonly ChiruMatrix _b = _a;
 
 		
 		[TestMethod]
 		[TestCategory("Mathix Operations")]
 		public void Dot()
 		{
-			var r = a / b;
+			var r = _a / _b;
 			Assert.AreEqual(new double[,] { { 6, 12, 18 } }.AsMatrix(), r);
 		}
 
@@ -29,7 +29,7 @@ namespace ChiruTests
 		[TestCategory("Mathix Operations")]
 		public void Multiply()
 		{
-			var r = a * b;
+			var r = _a * _b;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{6, 12, 18 },
@@ -50,7 +50,7 @@ namespace ChiruTests
 		[TestCategory("Mathix Operations")]
 		public void Subtract()
 		{
-			var r = a - b;
+			var r = _a - _b;
 			var e = ChiruMatrix.Zeros(3, 3);
 			Assert.AreEqual(e, r);
 		}
@@ -59,7 +59,7 @@ namespace ChiruTests
 		[TestCategory("Mathix Operations")]
 		public void Add()
 		{
-			var r = a + b;
+			var r = _a + _b;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{2, 4, 6 },
@@ -73,7 +73,7 @@ namespace ChiruTests
 		[TestCategory("Mathix Operations")]
 		public void SumAxisHorizontal()
 		{
-			var r = a.SumAxis(MatrixAxis.Horizontal);
+			var r = _a.SumAxis(MatrixAxis.Horizontal);
 
 			var e = new double[,]
 			{
@@ -88,7 +88,7 @@ namespace ChiruTests
 		[TestCategory("Mathix Operations")]
 		public void SumAxisVertical()
 		{
-			var r = a.SumAxis(MatrixAxis.Vertical);
+			var r = _a.SumAxis(MatrixAxis.Vertical);
 
 			var e = new double[,]
 			{
@@ -101,7 +101,7 @@ namespace ChiruTests
 		[TestCategory("Scalar Operations")]
 		public void ScalarMultiply()
 		{
-			var r = a * 2;
+			var r = _a * 2;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{2, 4, 6 },
@@ -115,7 +115,7 @@ namespace ChiruTests
 		[TestCategory("Scalar Operations")]
 		public void ScalarAdd()
 		{
-			var r = a + 2;
+			var r = _a + 2;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{3, 4, 5 },
@@ -129,7 +129,7 @@ namespace ChiruTests
 		[TestCategory("Scalar Operations")]
 		public void ScalarSubtract()
 		{
-			var r = a - 2;
+			var r = _a - 2;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{-1, 0, 1 },
@@ -143,7 +143,7 @@ namespace ChiruTests
 		[TestCategory("Scalar Operations")]
 		public void ScalarDivide()
 		{
-			var r = a / 2;
+			var r = _a / 2;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{.5, 1, 1.5 },
@@ -157,7 +157,7 @@ namespace ChiruTests
 		[TestCategory("Mathix Operations")]
 		public void Transpose()
 		{
-			var r = a.T;
+			var r = _a.T;
 			var e = new ChiruMatrix(new double[,]
 			{
 				{1, 1, 1 },

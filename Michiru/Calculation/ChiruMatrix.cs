@@ -13,27 +13,27 @@ namespace Michiru.Calculation
 	{
 		public double[,] Values { get; }
 		[JsonIgnore]
-		public int Height => Values.GetLength(0);
+		public readonly int Height => Values.GetLength(0);
 		[JsonIgnore]
-		public int Width => Values.GetLength(1);
+		public readonly int Width => Values.GetLength(1);
 		[JsonIgnore]
-		public ChiruMatrix T => Transpose();
+		public readonly ChiruMatrix T => Transpose();
         [JsonIgnore]
-        public ChiruMatrix Shape => new double[,] { { Height, Width }}.AsMatrix();
+        public readonly ChiruMatrix Shape => new double[,] { { Height, Width }}.AsMatrix();
 
 		[JsonIgnore]
-		private static Random _RAND = new Random();
+		private static Random _RAND = new();
 		
 
 		public ChiruMatrix(double[,] values) => Values = values;
 
-		public ref double this[int i, int j]
+		public readonly ref double this[int i, int j]
 		{
 			get => ref Values[i, j];
 			//set => Values[i, j] = value;
 		}
 
-		public ChiruMatrix this[int j]
+		public readonly ChiruMatrix this[int j]
 		{
 			get
 			{
@@ -63,7 +63,7 @@ namespace Michiru.Calculation
 		/// <param name="h">Height</param>
 		/// <param name="w">Width</param>
 		/// <returns></returns>
-		public static ChiruMatrix Zeros(int h, int w) => new ChiruMatrix(new double[h, w]);
+		public static ChiruMatrix Zeros(int h, int w) => new(new double[h, w]);
 		//Random
 		/// <summary>
 		/// Generates a new square matrix with random initial values
@@ -95,55 +95,55 @@ namespace Michiru.Calculation
 		/// Creates a copy of this matrix
 		/// </summary>
 		/// <returns></returns>
-		public ChiruMatrix Copy() => ((double[,])Values.Clone()).AsMatrix();
+		public readonly ChiruMatrix Copy() => ((double[,])Values.Clone()).AsMatrix();
 		//Add
-		private ChiruMatrix Add(ChiruMatrix b) => new ChiruMatrix(ChiruMath.Add(Values, b.Values));
+		private readonly ChiruMatrix Add(ChiruMatrix b) => new(ChiruMath.Add(Values, b.Values));
 		public static ChiruMatrix operator +(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Add(a.Values, b.Values).AsMatrix();
-		public static ChiruMatrix operator +(ChiruMatrix a, double[,] b) => new ChiruMatrix(ChiruMath.Add(a.Values, b));
-		public static ChiruMatrix operator +(double[,] a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.Add(a, b.Values));
+		public static ChiruMatrix operator +(ChiruMatrix a, double[,] b) => new(ChiruMath.Add(a.Values, b));
+		public static ChiruMatrix operator +(double[,] a, ChiruMatrix b) => new(ChiruMath.Add(a, b.Values));
 		//Add Col
-		public ChiruMatrix ColAdd(ChiruMatrix b) => new ChiruMatrix(ChiruMath.ColAdd(Values, b.Values));
+		public readonly ChiruMatrix ColAdd(ChiruMatrix b) => new(ChiruMath.ColAdd(Values, b.Values));
 		//Subtract
-		private ChiruMatrix Subtract(ChiruMatrix b) => new ChiruMatrix(ChiruMath.Subtract(Values, b.Values));
+		private readonly ChiruMatrix Subtract(ChiruMatrix b) => new(ChiruMath.Subtract(Values, b.Values));
 		public static ChiruMatrix operator -(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Subtract(a.Values, b.Values).AsMatrix();
-		public static ChiruMatrix operator -(ChiruMatrix a, double[,] b) => new ChiruMatrix(ChiruMath.Subtract(a.Values, b));
-		public static ChiruMatrix operator -(double[,] a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.Subtract(a, b.Values));
+		public static ChiruMatrix operator -(ChiruMatrix a, double[,] b) => new(ChiruMath.Subtract(a.Values, b));
+		public static ChiruMatrix operator -(double[,] a, ChiruMatrix b) => new(ChiruMath.Subtract(a, b.Values));
 		//Multiply
-		private ChiruMatrix Multiply(ChiruMatrix b) => new ChiruMatrix(ChiruMath.Multiply(Values, b.Values));
+		private readonly ChiruMatrix Multiply(ChiruMatrix b) => new(ChiruMath.Multiply(Values, b.Values));
 		public static ChiruMatrix operator *(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Multiply(a.Values, b.Values).AsMatrix();
-		public static ChiruMatrix operator *(ChiruMatrix a, double[,] b) => new ChiruMatrix(ChiruMath.Multiply(a.Values, b));
-		public static ChiruMatrix operator *(double[,] a, ChiruMatrix b) => new ChiruMatrix(ChiruMath.Multiply(a, b.Values));
+		public static ChiruMatrix operator *(ChiruMatrix a, double[,] b) => new(ChiruMath.Multiply(a.Values, b));
+		public static ChiruMatrix operator *(double[,] a, ChiruMatrix b) => new(ChiruMath.Multiply(a, b.Values));
 		//Multiply Col
 		/// <summary>
 		/// Multiplies the given column matrix with each column of this matrix elementwise
 		/// </summary>
 		/// <param name="b">Column Matrix</param>
 		/// <returns></returns>
-		public ChiruMatrix ElementMultiply(ChiruMatrix b) => new ChiruMatrix(ChiruMath.ElementMultiply(Values, b.Values));
+		public readonly ChiruMatrix ElementMultiply(ChiruMatrix b) => new(ChiruMath.ElementMultiply(Values, b.Values));
 		//Dot
-		private ChiruMatrix Dot(ChiruMatrix b) => ChiruMath.Dot(Values, b.Values).AsMatrix();
+		private readonly ChiruMatrix Dot(ChiruMatrix b) => ChiruMath.Dot(Values, b.Values).AsMatrix();
 		public static ChiruMatrix operator /(ChiruMatrix a, ChiruMatrix b) => ChiruMath.Dot(a.Values, b.Values).AsMatrix();
 		public static ChiruMatrix operator /(ChiruMatrix a, double[,] b) => ChiruMath.Dot(a.Values, b).AsMatrix();
 		public static ChiruMatrix operator /(double[,] a, ChiruMatrix b) => ChiruMath.Dot(a, b.Values).AsMatrix();
 		//Scalar
 		public static ChiruMatrix operator *(double a, ChiruMatrix b) => b * a;
-		public static ChiruMatrix operator *(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarMultiply(a.Values, b));
+		public static ChiruMatrix operator *(ChiruMatrix a, double b) => new(ChiruMath.ScalarMultiply(a.Values, b));
 		public static ChiruMatrix operator +(double a, ChiruMatrix b) => b + a;
-		public static ChiruMatrix operator +(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarAdd(a.Values, b));
+		public static ChiruMatrix operator +(ChiruMatrix a, double b) => new(ChiruMath.ScalarAdd(a.Values, b));
 		public static ChiruMatrix operator -(ChiruMatrix a) => a * -1;
 		public static ChiruMatrix operator -(double a, ChiruMatrix b) => -b + a;
-		public static ChiruMatrix operator -(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarSubtract(a.Values, b));
-		public static ChiruMatrix operator /(ChiruMatrix a, double b) => new ChiruMatrix(ChiruMath.ScalarDivide(a.Values, b));
+		public static ChiruMatrix operator -(ChiruMatrix a, double b) => new(ChiruMath.ScalarSubtract(a.Values, b));
+		public static ChiruMatrix operator /(ChiruMatrix a, double b) => new(ChiruMath.ScalarDivide(a.Values, b));
 		public static ChiruMatrix operator /(double a, ChiruMatrix b) => (1 / a) * b;
 
-		public ChiruMatrix Divide(ChiruMatrix b) => ChiruMath.ElementDivide(Values, b.Values).AsMatrix();
+		public readonly ChiruMatrix Divide(ChiruMatrix b) => ChiruMath.ElementDivide(Values, b.Values).AsMatrix();
 
 		/// <summary>
 		/// Aplies the given function to every element of this matrix, the result is placed in a new matrix
 		/// </summary>
 		/// <param name="f">Function to apply</param>
 		/// <returns>A new matrix containing the values after the function has been applied</returns>
-		public ChiruMatrix Map(Func<double, double> f)
+		public readonly ChiruMatrix Map(Func<double, double> f)
 		{
 			var m = new double[Height, Width];
 			for (int i = 0; i < Height; i++)
@@ -161,7 +161,7 @@ namespace Michiru.Calculation
 		/// </summary>
 		/// <param name="condition">Condition to be tested</param>
 		/// <returns></returns>
-		public bool Any(Func<double, bool> condition)
+		public readonly bool Any(Func<double, bool> condition)
 		{
 			for (int i = 0; i < Height; i++)
 			{
@@ -174,7 +174,7 @@ namespace Michiru.Calculation
 			return false;
 		}
 
-		public bool IsEmpty() => Values == null || Height == 0 || Width == 0;
+		public readonly bool IsEmpty() => Values == null || Height == 0 || Width == 0;
 
 
 		/// <summary>
@@ -183,41 +183,41 @@ namespace Michiru.Calculation
 		/// <returns></returns>
 		public bool HasNaN() => Any(double.IsNaN);
 
-		public double ErrorWith(ChiruMatrix actual) => (Math.Abs(((actual - this).ElementDivide(actual)).Map(x => double.IsNaN(x) || double.IsInfinity(x) ? 0 : x).Sum() / Width)) * 100;
+		public readonly double ErrorWith(ChiruMatrix actual) => (Math.Abs(((actual - this).ElementDivide(actual)).Map(x => double.IsNaN(x) || double.IsInfinity(x) ? 0 : x).Sum() / Width)) * 100;
 
-		private ChiruMatrix ElementDivide(ChiruMatrix b) => ChiruMath.ElementDivide(Values, b.Values).AsMatrix();
+		private readonly ChiruMatrix ElementDivide(ChiruMatrix b) => ChiruMath.ElementDivide(Values, b.Values).AsMatrix();
 
-		public ChiruMatrix Activate(ActivationFunction activator) => activator.Activate(this);
-		public ChiruMatrix DeActivate(ActivationFunction activator) => activator.DeActivate(this);
+		public readonly ChiruMatrix Activate(ActivationFunction activator) => activator.Activate(this);
+		public readonly ChiruMatrix DeActivate(ActivationFunction activator) => activator.DeActivate(this);
 
-		private ChiruMatrix Transpose() => new ChiruMatrix(ChiruMath.Transpose(Values));
+		private readonly ChiruMatrix Transpose() => new(ChiruMath.Transpose(Values));
 
 		/// <summary>
 		/// Calculate the sum of the entire matrix
 		/// </summary>
 		/// <returns>sum as a double</returns>
-		public double Sum() => ChiruMath.Sum(Values);
+		public readonly double Sum() => ChiruMath.Sum(Values);
 
 		/// <summary>
 		/// Calculate the sum along a given axis
 		/// </summary>
 		/// <param name="axis">The axis to sum</param>
 		/// <returns>The sum as a matrix</returns>
-		public ChiruMatrix SumAxis(MatrixAxis axis) => ChiruMath.SumAxis(Values, axis).AsMatrix();
+		public readonly ChiruMatrix SumAxis(MatrixAxis axis) => ChiruMath.SumAxis(Values, axis).AsMatrix();
 
 		/// <summary>
 		/// Calulares the mean values of each element in the matrix
 		/// </summary>
 		/// <returns></returns>
-		public double Mean() => Sum() / (Height * Width);
+		public readonly double Mean() => Sum() / (Height * Width);
 
 		/// <summary>
 		/// Returns a new matrix containing the absolute value of the elements of this matrix
 		/// </summary>
 		/// <returns></returns>
-		public ChiruMatrix Abs() => Map(Math.Abs);
+		public readonly ChiruMatrix Abs() => Map(Math.Abs);
 
-		public ChiruMatrix AppendColumns(ChiruMatrix matrix)
+		public readonly ChiruMatrix AppendColumns(ChiruMatrix matrix)
 		{
 			if (matrix.Height != Height)
 				throw new Exception("Matricies are not of the same height");
@@ -242,18 +242,18 @@ namespace Michiru.Calculation
 		/// Serializes the matrix to a JSON string
 		/// </summary>
 		/// <returns>JSON string</returns>
-		public string ToJSON() => JsonConvert.SerializeObject(Values);
+		public readonly string ToJSON() => JsonConvert.SerializeObject(Values);
 
 		/// <summary>
 		/// Deserializes a matrix from a JSON string
 		/// </summary>
 		/// <param name="JSON">Matris as a JSON string</param>
 		/// <returns></returns>
-		public static ChiruMatrix FromJSON(string JSON) => new ChiruMatrix(JsonConvert.DeserializeObject<double[,]>(JSON));
+		public static ChiruMatrix FromJSON(string JSON) => new(JsonConvert.DeserializeObject<double[,]>(JSON));
 
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			for (int i = 0; i < Height; i++)
 			{
 				sb.Append("[ ");
@@ -268,9 +268,9 @@ namespace Michiru.Calculation
 			return sb.ToString();
 		}
 
-		public bool Equals(ChiruMatrix obj) => ChiruMath.Equals(Values, obj.Values);
+		public readonly bool Equals(ChiruMatrix obj) => ChiruMath.Equals(Values, obj.Values);
 
-		public override bool Equals(object obj)
+		public override readonly bool Equals(object obj)
 		{
 			if (obj == null)
 				return false;
@@ -280,6 +280,6 @@ namespace Michiru.Calculation
 			return Equals((ChiruMatrix)obj);
 		}
 
-		public override int GetHashCode() => Values.GetHashCode();
+		public override readonly int GetHashCode() => Values.GetHashCode();
 	}
 }
